@@ -58,7 +58,23 @@ def resolve_theme(category: str, color_override: Optional[str] = None) -> Dict[s
             luminance = (0.299 * r + 0.587 * g + 0.114 * b)
             text_color = "#000000" if luminance > 140 else "#FFFFFF"
             return {"bg": color_override, "text": text_color, "label": "Custom"}
-    return THEME_PRESETS.get(category, THEME_PRESETS["General"])
+            
+    # Check SQLite database for custom category theme
+    try:
+        db_path = os.path.join(BASE_DIR, "cosmos_growth_os", "data", "cosmos_growth_os.db")
+        if os.path.exists(db_path):
+            import sqlite3
+            conn = sqlite3.connect(db_path)
+            c = conn.cursor()
+            c.execute("SELECT accent_color, text_color, theme_label FROM categories WHERE LOWER(name) = LOWER(?)", (category,))
+            row = c.fetchone()
+            conn.close()
+            if row:
+                return {"bg": row[0], "text": row[1], "label": row[2] or category}
+    except Exception:
+        pass
+
+    return THEME_PRESETS.get(category, THEME_PRESETS.get("General", {"bg": "#8B5CF6", "text": "#FFFFFF", "label": "Electric Violet"}))
 
 def load_json(path: str, default=None):
     if os.path.exists(path):

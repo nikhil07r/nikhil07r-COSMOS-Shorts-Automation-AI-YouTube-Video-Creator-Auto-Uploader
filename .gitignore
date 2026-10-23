@@ -28,7 +28,20 @@ logs/
 **/token.json
 **/client_secret*.json
 
-# Local configuration and generated output
+# Local databases
+*.db
+*.sqlite
+/cosmos_growth_os/data/
+
+# Generated Media Outputs
+*.mp4
+*.wav
+*.mp3
+/cosmos_shorts/output/
+/cosmos_growth_os/output/
+
+# Backups
+/backups/
 /MoneyPrinterTurbo/config.toml
 /MoneyPrinterTurbo/config.toml.backup_*
 /MoneyPrinterTurbo/config.toml.bak
@@ -37,4 +50,3 @@ logs/
 /cosmos_shorts/cosmos_config.toml
 /cosmos_shorts/cosmos_history.json
 /cosmos_shorts/test_thumbnail.*
-/cosmos_shorts/output/

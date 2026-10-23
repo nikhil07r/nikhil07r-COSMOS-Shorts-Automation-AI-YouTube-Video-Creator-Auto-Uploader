@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COSMOS GROWTH OS — YouTube Command Center</title>
+  
+  <!-- Offline Vendor Libraries -->
+  <script src="/static/vendor/tailwind.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: ['class', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            cosmos: {
+              bg: 'var(--bg-main)',
+              card: 'var(--bg-card)',
+              cardHover: 'var(--bg-card-hover)',
+              border: 'var(--border-color)',
+              violet: 'var(--accent-primary)',
+              cyan: 'var(--accent-cyan)',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="/static/vendor/lucide.min.js"></script>
+  <script src="/static/vendor/echarts.min.js"></script>
+  
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="/static/css/cosmos.css">
+</head>
+<body class="min-h-screen flex flex-col md:flex-row antialiased">
+
+  <!-- Mobile Top Nav -->
+  <div class="md:hidden flex items-center justify-between p-4 cosmos-card rounded-none border-x-0 border-t-0 z-40">
+    <div class="flex items-center space-x-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-cyan-400 flex items-center justify-center font-bold text-white shadow-lg">
+        C
+      </div>
+      <span class="font-bold text-lg tracking-tight">COSMOS OS</span>
+    </div>
+    <button id="mobile-menu-btn" class="p-2 rounded-lg border border-gray-700 text-gray-300">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+  </div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="hidden md:flex flex-col w-64 border-r border-gray-800 bg-[#0B0F19] p-4 flex-shrink-0 min-h-screen justify-between z-30">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 px-2 py-4 mb-6 border-b border-gray-800">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-cyan-400 flex items-center justify-center font-extrabold text-white text-lg shadow-md shadow-violet-900/30">
+          🪐
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base tracking-wide bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">COSMOS OS</h1>
+          <p class="text-[11px] text-gray-400 font-medium">Growth & Automation</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1.5" id="nav-links">
+        <button data-view="overview" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-300 hover:text-white hover:bg-gray-800/60 active">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-violet-400"></i>
+          <span>Overview</span>
+        </button>
+        <button data-view="studio" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400"></i>
+          <span>AI Content Studio</span>
+        </button>
+        <button data-view="video" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <i data-lucide="film" class="w-4 h-4 text-indigo-400"></i>
+          <span>Video Pipeline</span>
+        </button>
+        <button data-view="calendar" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <i data-lucide="calendar" class="w-4 h-4 text-emerald-400"></i>
+          <span>Content Calendar</span>
+        </button>
+        <button data-view="categories" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <i data-lucide="palette" class="w-4 h-4 text-pink-400"></i>
+          <span>Categories & Themes</span>
+        </button>
+        <button data-view="monetization" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <i data-lucide="trending-up" class="w-4 h-4 text-amber-400"></i>
+          <span>Monetization & Times</span>
+        </button>
+        <button data-view="settings" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <i data-lucide="settings" class="w-4 h-4 text-gray-400"></i>
+          <span>System & Health</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Health Status Widget in Sidebar -->
+    <div class="cosmos-card p-3 rounded-xl border border-gray-800/80 bg-gray-900/50 mt-6 space-y-2">
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-400 font-medium">System Health</span>
+        <span id="health-overall-dot" class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+      </div>
+      <div class="space-y-1 text-[11px] text-gray-400">
+        <div class="flex items-center justify-between">
+          <span>Ollama LLM</span>
+          <span id="health-ollama" class="text-emerald-400 font-medium">Checking...</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>FFmpeg 7.0</span>
+          <span id="health-ffmpeg" class="text-emerald-400 font-medium">Active</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>YouTube API</span>
+          <span id="health-yt" class="text-emerald-400 font-medium">Connected</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="flex-1 flex flex-col min-w-0">
+    
+    <!-- Top Bar -->
+    <header class="h-16 border-b border-gray-800 px-6 flex items-center justify-between bg-[#0B0F19]/80 backdrop-blur sticky top-0 z-20">
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 bg-gray-900/80 border border-gray-800 px-3 py-1.5 rounded-full text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="font-semibold text-gray-200" id="header-channel-title">COSMOS VIRAL</span>
+          <span class="text-gray-500 font-mono" id="header-channel-handle">@cosmos-1nr</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Live YouTube Sync Button -->
+        <button id="btn-sync-yt" class="btn-secondary text-xs px-3 py-1.5">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="sync-icon"></i>
+          <span>Sync Real Data</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="btn-theme-toggle" class="p-2 rounded-lg border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 transition">
+          <i data-lucide="moon" class="w-4 h-4" id="theme-icon"></i>
+        </button>
+
+        <!-- Create Short CTA -->
+        <button id="btn-create-short-cta" class="btn-primary text-xs px-3.5 py-1.5">
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+          <span>New Short</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Views -->
+    <main class="flex-1 p-6 overflow-y-auto">
+
+      <!-- ================= VIEW 1: CHANNEL OVERVIEW ================= -->
+      <section id="view-overview" class="view-panel space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-white">Channel Overview</h2>
+            <p class="text-xs text-gray-400 mt-0.5">Real-time performance metrics and audience velocity for COSMOS VIRAL</p>
+          </div>
+          <div class="text-xs text-gray-400 flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-gray-500"></i>
+            <span>Last Synced: <span id="overview-sync-time" class="text-gray-300 font-medium">Just now</span></span>
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Card 1: Subscribers -->
+          <div class="cosmos-card p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-gray-400 mb-2">
+              <span class="text-xs font-medium">Subscribers</span>
+              <div class="p-2 rounded-lg bg-violet-500/10 text-violet-400">
+                <i data-lucide="users" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="flex items-baseline space-x-2">
+              <span id="metric-subscribers" class="text-2xl font-bold text-white tracking-tight">49</span>
+              <span class="text-xs text-emerald-400 font-semibold flex items-center">
+                <i data-lucide="arrow-up-right" class="w-3 h-3 mr-0.5"></i> +12%
+              </span>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-1">Goal: 1,000 for YPP Partner</p>
+          </div>
+
+          <!-- Card 2: Total Views -->
+          <div class="cosmos-card p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-gray-400 mb-2">
+              <span class="text-xs font-medium">Total Channel Views</span>
+              <div class="p-2 rounded-lg bg-cyan-500/10 text-cyan-400">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="flex items-baseline space-x-2">
+              <span id="metric-views" class="text-2xl font-bold text-white tracking-tight">11,340</span>
+              <span class="text-xs text-emerald-400 font-semibold flex items-center">
+                <i data-lucide="arrow-up-right" class="w-3 h-3 mr-0.5"></i> +18%
+              </span>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-1">Shorts feed distribution</p>
+          </div>
+
+          <!-- Card 3: Uploaded Videos -->
+          <div class="cosmos-card p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-gray-400 mb-2">
+              <span class="text-xs font-medium">Published Shorts</span>
+              <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+                <i data-lucide="video" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="flex items-baseline space-x-2">
+              <span id="metric-videos" class="text-2xl font-bold text-white tracking-tight">37</span>
+              <span class="text-xs text-gray-400 font-medium">Shorts</span>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-1">Cadence: 1-2 videos/day</p>
+          </div>
+
+          <!-- Card 4: Avg Views per Short -->
+          <div class="cosmos-card p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-gray-400 mb-2">
+              <span class="text-xs font-medium">Average Views / Short</span>
+              <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="flex items-baseline space-x-2">
+              <span id="metric-avg-views" class="text-2xl font-bold text-white tracking-tight">306</span>
+              <span class="text-xs text-emerald-400 font-semibold flex items-center">
+                <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> Healthy
+              </span>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-1">Benchmark: >200 baseline</p>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Views & Retention Growth Chart -->
+          <div class="cosmos-card p-5 lg:col-span-2 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-sm text-white">Audience Growth & Views Velocity</h3>
+                <p class="text-xs text-gray-400">Weekly trajectory across YouTube Shorts feed</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full badge-cosmos font-semibold">Active Trend</span>
+            </div>
+            <div id="chart-growth" class="w-full h-64"></div>
+          </div>
+
+          <!-- Content Category Distribution -->
+          <div class="cosmos-card p-5 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-sm text-white">Niche Performance</h3>
+                <p class="text-xs text-gray-400">Share of views by theme</p>
+              </div>
+            </div>
+            <div id="chart-categories" class="w-full h-64"></div>
+          </div>
+        </div>
+
+        <!-- AI Grounded Channel Recommendations -->
+        <div class="cosmos-card p-5 border-l-4 border-l-violet-500">
+          <div class="flex items-center space-x-2 mb-3">
+            <i data-lucide="sparkles" class="w-4 h-4 text-violet-400"></i>
+            <h3 class="font-bold text-sm text-white">Ollama AI Channel Strategic Insights</h3>
+          </div>
+          <div id="overview-ai-insights" class="text-xs text-gray-300 space-y-2">
+            <p class="loading-shimmer text-gray-400">Analyzing channel history with Qwen 2.5 7B...</p>
+          </div>
+        </div>
+
+        <!-- Top Performing Videos Table -->
+        <div class="cosmos-card p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-white">Recent Uploaded Shorts</h3>
+            <span class="text-xs text-gray-400">Synced from official YouTube Data API</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-300">
+              <thead class="text-gray-400 border-b border-gray-800 uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th class="pb-3 font-semibold">Video Title</th>
+                  <th class="pb-3 font-semibold">Duration</th>
+                  <th class="pb-3 font-semibold">Views</th>
+                  <th class="pb-3 font-semibold">Likes</th>
+                  <th class="pb-3 font-semibold">Engagement</th>
+                  <th class="pb-3 font-semibold text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="overview-videos-tbody" class="divide-y divide-gray-800/60">
+                <tr>
+                  <td colspan="6" class="py-6 text-center text-gray-500">Loading videos from channel...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 2: AI CONTENT STUDIO ================= -->
+      <section id="view-studio" class="view-panel hidden space-y-6">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-white">AI Content Studio</h2>
+          <p class="text-xs text-gray-400 mt-0.5">High-retention Hindi/Hinglish script creation powered by local Ollama (qwen2.5:7b)</p>
+        </div>
+
+        <!-- Mode Selector Tabs -->
+        <div class="flex border-b border-gray-800 space-x-4 text-xs font-semibold">
+          <button id="tab-mode-story" class="studio-tab pb-3 border-b-2 border-violet-500 text-white flex items-center gap-1.5 active">
+            <i data-lucide="book-open" class="w-3.5 h-3.5 text-violet-400"></i>
+            <span>1. Story Conception Mode</span>
+          </button>
+          <button id="tab-mode-script" class="studio-tab pb-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-1.5">
+            <i data-lucide="file-edit" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>2. Exact Script Input Mode</span>
+          </button>
+          <button id="tab-mode-curated" class="studio-tab pb-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-1.5">
+            <i data-lucide="compass" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>3. Curated Mystery Library</span>
+          </button>
+        </div>
+
+        <!-- Studio Two-Column Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left: Input Controls -->
+          <div class="lg:col-span-5 space-y-4">
+            
+            <!-- Story Mode Box -->
+            <div id="panel-mode-story" class="cosmos-card p-5 space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Concept / Story Hook Idea</label>
+                <textarea id="studio-story-prompt" rows="3" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-violet-500" placeholder="e.g. A space rogue planet traveling through our galaxy that could collide with Earth..."></textarea>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs font-semibold text-gray-300">Category & Theme</label>
+                  <button id="btn-quick-manage-cat" type="button" class="text-[11px] text-pink-400 hover:text-pink-300 flex items-center gap-1 font-medium">
+                    <i data-lucide="settings-2" class="w-3 h-3"></i>
+                    <span>Manage Niches</span>
+                  </button>
+                </div>
+                <select id="studio-story-category" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-violet-500">
+                  <!-- Populated dynamically from /api/categories -->
+                </select>
+              </div>
+
+              <!-- Language & Template Controls -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-300 mb-1">Language Style</label>
+                  <select id="studio-language" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-violet-500">
+                    <option value="auto">Category Default</option>
+                    <option value="hindi">Hindi (Devanagari)</option>
+                    <option value="hinglish">Hinglish (Roman Script)</option>
+                    <option value="english">English</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-300 mb-1">AI Prompt Template</label>
+                  <select id="studio-prompt-template" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-violet-500">
+                    <option value="">Default Template</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Extra Custom Instructions per video -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Extra Instructions (Optional)</label>
+                <textarea id="studio-custom-instructions" rows="2" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-violet-500" placeholder="e.g. 'Focus on Steve Jobs 1997 quote' or 'Add suspense cliffhanger in 40th sec'..."></textarea>
+              </div>
+            </div>
+
+            <!-- Exact Script Mode Box -->
+            <div id="panel-mode-script" class="cosmos-card p-5 space-y-4 hidden">
+              <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Paste Your Custom Hindi / Hinglish Script</label>
+                <textarea id="studio-exact-script" rows="6" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-cyan-500 font-hindi" placeholder="यहाँ अपनी पूरी हिंदी या Hinglish स्क्रिप्ट लिखें..."></textarea>
+              </div>
+              <p class="text-[11px] text-gray-400">The model will analyze your exact words, polish grammar, extract sequential visual keywords, and verify factual claims.</p>
+            </div>
+
+            <!-- Curated Catalog Box -->
+            <div id="panel-mode-curated" class="cosmos-card p-5 space-y-4 hidden">
+              <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Pick a Mystery Category</label>
+                <select id="studio-curated-category" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 mb-3"></select>
+                
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Select Verified High-Retention Topic</label>
+                <select id="studio-curated-topic" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"></select>
+              </div>
+            </div>
+
+            <!-- Action Buttons Row -->
+            <div class="flex items-center space-x-2">
+              <button id="btn-preview-prompt" type="button" class="btn-secondary w-1/3 justify-center py-2.5 text-xs">
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-gray-400"></i>
+                <span>Preview Prompt</span>
+              </button>
+              <button id="btn-generate-script" type="button" class="btn-primary w-2/3 justify-center py-2.5 text-xs">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span id="btn-generate-label">Generate Script with Qwen</span>
+              </button>
+            </div>
+
+            <!-- Ollama Model Selection -->
+            <div class="flex items-center justify-between text-xs text-gray-400 px-1">
+              <span>Local Model:</span>
+              <span class="text-violet-400 font-mono font-medium">qwen2.5:7b (Auto-fallback to 3b)</span>
+            </div>
+          </div>
+
+          <!-- Right: Output Editor & Policy Checker -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="cosmos-card p-5 space-y-4">
+              <div class="flex items-center justify-between">
+                <input id="studio-title-input" class="bg-transparent font-bold text-sm text-white focus:outline-none border-b border-transparent focus:border-violet-500 w-3/4" placeholder="Generated Short Title with emoji">
+                <span id="studio-duration-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-medium">~52s</span>
+              </div>
+
+              <!-- Hindi Script Area -->
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Narration Script (Hindi Devanagari)</label>
+                <textarea id="studio-script-input" rows="8" class="w-full bg-gray-900/80 border border-gray-800 rounded-xl p-3 text-sm text-gray-100 font-hindi focus:outline-none focus:border-violet-500 leading-relaxed" placeholder="The generated Hindi narration will appear here. You can directly edit any word before rendering..."></textarea>
+              </div>
+
+              <!-- Visual Keyword Tags -->
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Synchronized Visual Keywords (English Stock Searches)</label>
+                <div id="studio-keywords-container" class="flex flex-wrap gap-1.5 p-2 bg-gray-900 border border-gray-800 rounded-xl min-h-[42px]">
+                  <span class="text-xs text-gray-500 italic">Sequential stock keywords will appear here...</span>
+                </div>
+              </div>
+
+              <!-- Factual Verification Checklist -->
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Factual Verification Checklist</label>
+                <div id="studio-facts-container" class="space-y-1 text-xs text-gray-300">
+                  <p class="text-gray-500 italic">No checklist loaded.</p>
+                </div>
+              </div>
+
+              <!-- Policy & Quality Check Results -->
+              <div id="studio-policy-box" class="p-3 rounded-xl bg-gray-900/60 border border-gray-800 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-semibold text-gray-300">Quality & Retention Score</span>
+                  <span id="studio-quality-score" class="font-bold text-emerald-400">95 / 100</span>
+                </div>
+                <div id="studio-policy-suggestions" class="text-[11px] text-gray-400 space-y-0.5">
+                  <p>✔ Duration ideal for Shorts algorithm (approx 52 seconds).</p>
+                  <p>✔ Opening hook in first 3 seconds present.</p>
+                  <p>✔ Brand callout 'Follow COSMOS' verified.</p>
+                </div>
+              </div>
+
+              <!-- Bottom Actions -->
+              <div class="flex items-center justify-end space-x-3 pt-2">
+                <button id="btn-save-draft" class="btn-secondary text-xs">
+                  <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                  <span>Save Draft</span>
+                </button>
+                <button id="btn-send-to-pipeline" class="btn-primary text-xs">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                  <span>Send to Video Pipeline</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 3: VIDEO PIPELINE & PLAYER ================= -->
+      <section id="view-video" class="view-panel hidden space-y-6">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-white">Video Studio Pipeline</h2>
+          <p class="text-xs text-gray-400 mt-0.5">Automated EdgeTTS speech, synchronized stock footage, dynamic pacing, and 1080x1920 thumbnail generation</p>
+        </div>
+
+        <!-- Active Generation Progress Card -->
+        <div id="video-progress-card" class="cosmos-card p-5 space-y-4 hidden border-violet-500/50">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-3 h-3 rounded-full bg-violet-400 pulse-dot"></div>
+              <div>
+                <h3 id="job-active-title" class="font-bold text-sm text-white">Generating Video...</h3>
+                <p id="job-active-step" class="text-xs text-gray-400">Initializing pipeline</p>
+              </div>
+            </div>
+            <span id="job-active-pct" class="font-mono text-sm font-bold text-violet-400">0%</span>
+          </div>
+          <!-- Progress Bar -->
+          <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+            <div id="job-progress-fill" class="bg-gradient-to-r from-violet-500 to-cyan-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Latest Generated Output Showcase -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Video Player Column -->
+          <div class="lg:col-span-7 cosmos-card p-5 space-y-4">
+            <h3 class="font-bold text-sm text-white">Generated Video Preview</h3>
+            
+            <div class="relative bg-black rounded-xl overflow-hidden aspect-[9/16] max-h-[520px] mx-auto flex items-center justify-center border border-gray-800">
+              <video id="studio-video-player" controls class="w-full h-full object-contain" poster="/static/images/poster_placeholder.png">
+                <source id="video-source" src="" type="video/mp4">
+                Your browser does not support HTML video.
+              </video>
+              <div id="video-empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 p-6 text-center">
+                <i data-lucide="film" class="w-12 h-12 mb-2 text-gray-600"></i>
+                <p class="text-xs">No video loaded. Select a generated job below or launch a new Short from AI Studio.</p>
+              </div>
+            </div>
+
+            <!-- Video Metadata & Quick Upload Button -->
+            <div class="flex items-center justify-between pt-2">
+              <div>
+                <p id="preview-video-title" class="font-bold text-xs text-white">अंतरिक्ष की 4 सबसे डरावनी घटनाएं</p>
+                <p id="preview-video-meta" class="text-[11px] text-gray-400">Duration: 52.8s | 1080x1920 Full HD | 1-to-1 Synced</p>
+              </div>
+              <div class="flex space-x-2">
+                <button id="btn-quick-schedule" class="btn-secondary text-xs">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                  <span>Schedule</span>
+                </button>
+                <button id="btn-quick-upload-private" class="btn-primary text-xs bg-emerald-600 hover:bg-emerald-500">
+                  <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i>
+                  <span>Upload (Private Test)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Thumbnail & Past Jobs Column -->
+          <div class="lg:col-span-5 space-y-6">
+            <!-- Thumbnail Card -->
+            <div class="cosmos-card p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white">Custom 1080x1920 Thumbnail</h3>
+                <span class="text-xs text-gray-400">Auto-generated</span>
+              </div>
+              <div class="aspect-[9/16] max-h-64 rounded-xl overflow-hidden bg-gray-900 border border-gray-800 mx-auto">
+                <img id="preview-thumbnail-img" src="" alt="Thumbnail Preview" class="w-full h-full object-cover">
+              </div>
+            </div>
+
+            <!-- Jobs History List -->
+            <div class="cosmos-card p-5 space-y-3">
+              <h3 class="font-bold text-sm text-white">Recent Render Jobs</h3>
+              <div id="video-jobs-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <p class="text-xs text-gray-500">Loading render history...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 4: CONTENT CALENDAR & SCHEDULING ================= -->
+      <section id="view-calendar" class="view-panel hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-white">Content Calendar & Safe Scheduling</h2>
+            <p class="text-xs text-gray-400 mt-0.5">Plan your releases, run private test uploads, and enforce explicit confirmation gates</p>
+          </div>
+          <button id="btn-open-schedule-modal" class="btn-primary text-xs">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Schedule Video</span>
+          </button>
+        </div>
+
+        <!-- Strict Safety Warning Banner -->
+        <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start space-x-3 text-xs text-amber-300">
+          <i data-lucide="shield-alert" class="w-5 h-5 flex-shrink-0 text-amber-400 mt-0.5"></i>
+          <div>
+            <span class="font-bold">Strict Safety Protocol:</span> All uploads default to <strong class="underline">Private</strong> to protect your channel from accidental releases. You can preview and test audio/video quality inside YouTube Studio before publishing publicly. Public releases require explicit approval.
+          </div>
+        </div>
+
+        <!-- Calendar Timeline Grid -->
+        <div class="cosmos-card p-5 space-y-4">
+          <h3 class="font-bold text-sm text-white">Scheduled Uploads & Release Queue</h3>
+          <div id="calendar-timeline-container" class="space-y-3">
+            <p class="text-xs text-gray-500">Loading scheduled events...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 5: MONETIZATION & BEST TIMES ================= -->
+      <section id="view-monetization" class="view-panel hidden space-y-6">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-white">Monetization Tracker & Optimal Posting Times</h2>
+          <p class="text-xs text-gray-400 mt-0.5">Official YouTube Partner Program (YPP) milestone tracking & audience active hours analysis</p>
+        </div>
+
+        <!-- YPP Progress Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Path A: Shorts Views Velocity -->
+          <div class="cosmos-card p-5 space-y-4 border-l-4 border-l-cyan-500">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-cyan-400 uppercase tracking-wider">Fastest Path: Shorts Feed</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-medium">90 Days Window</span>
+            </div>
+            
+            <h3 class="text-lg font-bold text-white">Shorts Views: <span id="ypp-shorts-views">11,340</span> / 10,000,000</h3>
+            
+            <!-- Progress Bar -->
+            <div class="space-y-1.5">
+              <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                <div id="ypp-shorts-bar" class="bg-gradient-to-r from-cyan-500 to-violet-500 h-2.5 rounded-full" style="width: 0.11%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-gray-400 font-medium">
+                <span id="ypp-shorts-pct">0.11% Reached</span>
+                <span id="ypp-shorts-remain">9,988,660 views needed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Path B: Subscribers Goal -->
+          <div class="cosmos-card p-5 space-y-4 border-l-4 border-l-violet-500">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-violet-400 uppercase tracking-wider">Subscriber Milestone</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-medium">Required for YPP</span>
+            </div>
+            
+            <h3 class="text-lg font-bold text-white">Subscribers: <span id="ypp-subs-count">49</span> / 1,000</h3>
+            
+            <!-- Progress Bar -->
+            <div class="space-y-1.5">
+              <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                <div id="ypp-subs-bar" class="bg-gradient-to-r from-violet-500 to-indigo-500 h-2.5 rounded-full" style="width: 4.9%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-gray-400 font-medium">
+                <span id="ypp-subs-pct">4.9% Reached</span>
+                <span id="ypp-subs-remain">951 subscribers remaining</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Best Posting Time Heatmap Chart -->
+        <div class="cosmos-card p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-white">Optimal Upload Time Heatmap (Asia/Kolkata IST)</h3>
+              <p class="text-xs text-gray-400">Peak viewer activity zones calculated for Hindi educational Shorts</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-violet-400">Prime Window: 18:00 – 21:00 IST</span>
+            </div>
+          </div>
+          <div id="chart-posting-heatmap" class="w-full h-72"></div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 6: SETTINGS & SYSTEM HEALTH ================= -->
+      <section id="view-settings" class="view-panel hidden space-y-6">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-white">System Settings & Infrastructure Health</h2>
+          <p class="text-xs text-gray-400 mt-0.5">Inspect local Ollama models, FFmpeg binaries, database connection, and storage</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Subsystems Health Card -->
+          <div class="cosmos-card p-5 space-y-4">
+            <h3 class="font-bold text-sm text-white">Local Engines & Dependencies</h3>
+            
+            <div class="space-y-3 text-xs">
+              <div class="flex items-center justify-between p-3 rounded-xl bg-gray-900 border border-gray-800">
+                <div class="flex items-center space-x-3">
+                  <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-white">Local Ollama LLM</p>
+                    <p class="text-gray-400 text-[11px]">http://localhost:11434</p>
+                  </div>
+                </div>
+                <span id="settings-ollama-badge" class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Online</span>
+              </div>
+
+              <div class="flex items-center justify-between p-3 rounded-xl bg-gray-900 border border-gray-800">
+                <div class="flex items-center space-x-3">
+                  <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+                    <i data-lucide="film" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-white">FFmpeg 7.0 Essentials</p>
+                    <p class="text-gray-400 text-[11px]">lib\ffmpeg\ffmpeg-7.0</p>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Installed</span>
+              </div>
+
+              <div class="flex items-center justify-between p-3 rounded-xl bg-gray-900 border border-gray-800">
+                <div class="flex items-center space-x-3">
+                  <div class="p-2 rounded-lg bg-cyan-500/10 text-cyan-400">
+                    <i data-lucide="youtube" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-white">YouTube Data API v3</p>
+                    <p class="text-gray-400 text-[11px]">token.json (COSMOS VIRAL)</p>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Authorized</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preferences Card -->
+          <div class="cosmos-card p-5 space-y-4">
+            <h3 class="font-bold text-sm text-white">Generation & Model Preferences</h3>
+            
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-gray-300 mb-1">Primary Ollama Model</label>
+                <select id="settings-ollama-model" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white">
+                  <option value="qwen2.5:7b">qwen2.5:7b (High Creative Quality - 4.7 GB)</option>
+                  <option value="qwen2.5:3b">qwen2.5:3b (Ultra Fast - 1.9 GB)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-gray-300 mb-1">Default Narration Voice (EdgeTTS)</label>
+                <select id="settings-voice" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white">
+                  <option value="hi-IN-MadhurNeural">Hindi - Madhur (Male, Deep & Mysterious) - Recommended</option>
+                  <option value="hi-IN-SwaraNeural">Hindi - Swara (Female, Clear & Expressive)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-gray-300 mb-1">Default Upload Privacy</label>
+                <select id="settings-privacy" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white">
+                  <option value="private">Private (Strictly Recommended for QA testing)</option>
+                  <option value="unlisted">Unlisted (Shareable link only)</option>
+                </select>
+              </div>
+
+              <div class="pt-2">
+                <button id="btn-save-settings" class="btn-primary w-full justify-center">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                  <span>Save System Preferences</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 7: CATEGORIES & THEMES ================= -->
+      <section id="view-categories" class="view-panel hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              <span>Categories & Themes</span>
+              <span id="categories-count-badge" class="text-xs px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-semibold">7</span>
+            </h2>
+            <p class="text-xs text-gray-400 mt-0.5">Customize video niches, brand color themes, Roman Hinglish / Hindi language rules, and AI prompt instructions</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btn-export-categories" class="btn-secondary text-xs px-3 py-2">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Export</span>
+            </button>
+            <button id="btn-import-categories-trigger" class="btn-secondary text-xs px-3 py-2">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+              <span>Import</span>
+            </button>
+            <input type="file" id="import-categories-file" class="hidden" accept=".json">
+            <button id="btn-create-category" class="btn-primary text-xs px-3.5 py-2">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>New Category</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div class="relative w-full sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5"></i>
+            <input type="text" id="categories-search" placeholder="Search categories..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500">
+          </div>
+          <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 text-xs" id="cat-filter-container">
+            <button class="cat-filter-btn px-3 py-1.5 rounded-lg border border-violet-500/40 bg-violet-500/10 text-white font-medium active" data-lang="all">All Niches</button>
+            <button class="cat-filter-btn px-3 py-1.5 rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white" data-lang="hindi">Hindi (Devanagari)</button>
+            <button class="cat-filter-btn px-3 py-1.5 rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white" data-lang="hinglish">Hinglish (Roman)</button>
+            <button class="cat-filter-btn px-3 py-1.5 rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white" data-lang="english">English</button>
+          </div>
+        </div>
+
+        <!-- Categories Grid -->
+        <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Populated dynamically by JavaScript -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 space-y-2 z-50"></div>
+
+  <!-- Category Create/Edit Modal with Live Preview -->
+  <div id="category-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-50 hidden overflow-y-auto">
+    <div class="cosmos-card max-w-4xl w-full p-6 space-y-5 my-8 max-h-[92vh] flex flex-col justify-between">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <div id="modal-icon-badge" class="w-8 h-8 rounded-lg bg-violet-500/20 text-violet-400 flex items-center justify-center text-lg">🎯</div>
+          <div>
+            <h3 id="category-modal-title" class="font-bold text-base text-white">Create Video Category</h3>
+            <p class="text-[11px] text-gray-400">Configure theme colors, language rules, and AI script instructions</p>
+          </div>
+        </div>
+        <button id="btn-close-cat-modal" class="text-gray-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- 2-Column Responsive Body -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-y-auto pr-1">
+        
+        <!-- Left: Form Inputs (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4 text-xs">
+          <input type="hidden" id="form-cat-id" value="">
+
+          <!-- Name & Icon -->
+          <div class="grid grid-cols-4 gap-3">
+            <div class="col-span-1">
+              <label class="block font-semibold text-gray-300 mb-1">Icon</label>
+              <input type="text" id="form-cat-icon" maxlength="4" value="🪐" class="w-full text-center text-base bg-gray-900 border border-gray-800 rounded-xl p-2 text-white focus:outline-none focus:border-violet-500">
+            </div>
+            <div class="col-span-3">
+              <label class="block font-semibold text-gray-300 mb-1">Category Name *</label>
+              <input type="text" id="form-cat-name" placeholder="e.g. Business & Finance" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-violet-500 font-medium">
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block font-semibold text-gray-300 mb-1">Short Description</label>
+            <input type="text" id="form-cat-desc" placeholder="Brief 1-line description of content covered..." class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2 text-white focus:outline-none focus:border-violet-500">
+          </div>
+
+          <!-- Theme Accent Color & Swatches -->
+          <div class="space-y-2 p-3 bg-gray-900/60 rounded-xl border border-gray-800">
+            <div class="flex items-center justify-between">
+              <label class="font-semibold text-gray-300">Theme Accent Color</label>
+              <span id="form-color-preview-pill" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold" style="background-color: #00E5FF; color: #000000;">#00E5FF</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <input type="color" id="form-cat-color" value="#00E5FF" class="w-9 h-9 rounded-lg border-0 bg-transparent cursor-pointer flex-shrink-0">
+              <input type="text" id="form-cat-color-hex" value="#00E5FF" class="w-24 bg-gray-900 border border-gray-800 rounded-lg p-1.5 text-center font-mono text-white text-xs uppercase">
+              <input type="text" id="form-cat-theme-label" placeholder="Theme Label (e.g. Electric Cyan)" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg p-1.5 text-white text-xs">
+            </div>
+            <!-- Quick Preset Swatches -->
+            <div class="flex items-center space-x-2 pt-1" id="color-preset-swatches">
+              <button type="button" class="w-5 h-5 rounded-full border border-white/20 transition hover:scale-110" style="background-color: #00E5FF;" data-color="#00E5FF" data-label="Electric Cyan" title="Electric Cyan"></button>
+              <button type="button" class="w-5 h-5 rounded-full border border-white/20 transition hover:scale-110" style="background-color: #10B981;" data-color="#10B981" data-label="Neon Emerald" title="Neon Emerald"></button>
+              <button type="button" class="w-5 h-5 rounded-full border border-white/20 transition hover:scale-110" style="background-color: #FF2A55;" data-color="#FF2A55" data-label="Crimson Fire" title="Crimson Fire"></button>
+              <button type="button" class="w-5 h-5 rounded-full border border-white/20 transition hover:scale-110" style="background-color: #FFB800;" data-color="#FFB800" data-label="Ancient Gold" title="Ancient Gold"></button>
+              <button type="button" class="w-5 h-5 rounded-full border border-white/20 transition hover:scale-110" style="background-color: #8B5CF6;" data-color="#8B5CF6" data-label="Electric Violet" title="Electric Violet"></button>
+              <button type="button" class="w-5 h-5 rounded-full border border-white/20 transition hover:scale-110" style="background-color: #06B6D4;" data-color="#06B6D4" data-label="Venture Cyan" title="Venture Cyan"></button>
+              <button type="button" class="w-5 h-5 rounded-full border border-white/20 transition hover:scale-110" style="background-color: #3B82F6;" data-color="#3B82F6" data-label="Neural Cobalt" title="Neural Cobalt"></button>
+              <button type="button" class="w-5 h-5 rounded-full border border-white/20 transition hover:scale-110" style="background-color: #EC4899;" data-color="#EC4899" data-label="Cyber Pink" title="Cyber Pink"></button>
+            </div>
+          </div>
+
+          <!-- Visual Style & Language -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-gray-300 mb-1">Visual Footage Style</label>
+              <select id="form-cat-style" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2 text-white">
+                <option value="Cinematic Drone">Cinematic Drone & Landscapes</option>
+                <option value="Cinematic Deep Space & Telescopic CG">Cinematic Deep Space & Telescopic CG</option>
+                <option value="High Tension & Dark Atmosphere">High Tension & Dark Atmosphere</option>
+                <option value="Modern Corporate & Stock Charts">Modern Corporate & Stock Charts</option>
+                <option value="Futuristic Sci-Fi & Clean Tech">Futuristic Sci-Fi & Clean Tech</option>
+                <option value="Archival & Monumental Scenery">Archival & Monumental Scenery</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-gray-300 mb-1">Default Content Language</label>
+              <select id="form-cat-lang" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2 text-white">
+                <option value="hindi">Hindi (Devanagari Script)</option>
+                <option value="hinglish">Hinglish (Roman Script - English Letters)</option>
+                <option value="english">English (Global)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Duration & Caption Position Y -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-gray-300 mb-1">Default Duration</label>
+              <input type="number" id="form-cat-duration" min="30" max="60" value="52" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2 text-white">
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="font-semibold text-gray-300">Caption Y Position</label>
+                <span id="form-caption-pos-val" class="text-violet-400 font-mono">76%</span>
+              </div>
+              <input type="range" id="form-cat-pos-y" min="65" max="88" value="76" class="w-full accent-violet-500">
+            </div>
+          </div>
+
+          <!-- Custom AI Prompt Instructions -->
+          <div>
+            <label class="block font-semibold text-gray-300 mb-1">Custom AI Prompt Instructions</label>
+            <textarea id="form-cat-prompt" rows="3" placeholder="Specific instructions for Ollama when generating this category (e.g. 'Use punchy Roman Hinglish, verify financial statistics, avoid false claims')..." class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-violet-500"></textarea>
+          </div>
+
+          <!-- Toggles -->
+          <div class="flex items-center space-x-6 pt-1">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" id="form-cat-default" class="rounded border-gray-800 text-violet-600 focus:ring-0">
+              <span class="text-gray-300 font-medium">Set as Default Category</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" id="form-cat-enabled" checked class="rounded border-gray-800 text-violet-600 focus:ring-0">
+              <span class="text-gray-300 font-medium">Enabled</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Right: Live 9:16 Mockup Preview (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col justify-between p-4 bg-gray-900/80 rounded-2xl border border-gray-800">
+          <div class="flex items-center justify-between mb-2 text-xs">
+            <span class="font-bold text-gray-300">Live Short Theme Preview</span>
+            <span id="preview-lang-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-500/20 text-violet-300">HINDI DEVANAGARI</span>
+          </div>
+
+          <!-- Mock 9:16 Vertical Phone Display -->
+          <div class="relative w-full aspect-[9/16] max-h-[380px] bg-gradient-to-b from-gray-900 via-gray-950 to-black rounded-xl overflow-hidden border border-gray-800 flex flex-col justify-between p-4 shadow-2xl mx-auto">
+            
+            <!-- Top Header & Badge -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-1.5">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600 text-white">🔴 COSMOS</span>
+              </div>
+              <!-- Category Dynamic Pill -->
+              <div id="preview-cat-pill" class="flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-md" style="background-color: #00E5FF; color: #000000;">
+                <span id="preview-cat-icon">🪐</span>
+                <span id="preview-cat-name">Space & Universe</span>
+              </div>
+            </div>
+
+            <!-- Middle Title Mockup -->
+            <div class="text-center space-y-1 my-auto">
+              <p class="text-xs font-bold text-white tracking-wide" id="preview-sample-title">
+                क्या आप जानते हैं कि ब्रह्मांड का सबसे बड़ा रहस्य क्या है?
+              </p>
+              <p class="text-[9px] text-gray-400" id="preview-sample-style">Visual: Cinematic Drone</p>
+            </div>
+
+            <!-- Dynamic Subtitle Preview Pill at Y% -->
+            <div class="relative w-full flex justify-center pb-4" id="preview-subtitle-container">
+              <div id="preview-subtitle-pill" class="px-3 py-1 rounded-md text-[11px] font-bold shadow-lg text-center" style="background-color: #00E5FF; color: #000000;">
+                <span id="preview-subtitle-text">Follow COSMOS for Daily Mysteries!</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-[10px] text-gray-500 text-center mt-2">
+            Real-time visual preview of title highlight, badge, and subtitles.
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-end space-x-3 border-t border-gray-800 pt-3">
+        <button id="btn-cancel-cat-modal" class="btn-secondary text-xs">Cancel</button>
+        <button id="btn-save-cat" class="btn-primary text-xs">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          <span>Save Category</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Safe Category Deletion & Reassignment Modal -->
+  <div id="category-delete-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-50 hidden">
+    <div class="cosmos-card max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center space-x-3 text-rose-400">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+        <h3 class="font-bold text-base text-white">Delete Video Category</h3>
+      </div>
+      <p class="text-xs text-gray-300 leading-relaxed" id="delete-cat-message">
+        Are you sure you want to delete this category? To ensure no historical records or video drafts are broken, you can reassign existing drafts or safely archive the category instead.
+      </p>
+      
+      <div class="space-y-3 p-3 bg-gray-900 rounded-xl border border-gray-800 text-xs">
+        <div>
+          <label class="block font-semibold text-gray-300 mb-1">Reassign existing drafts to:</label>
+          <select id="delete-reassign-select" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-white text-xs"></select>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="checkbox" id="delete-archive-only" class="rounded border-gray-800 text-violet-600">
+          <label for="delete-archive-only" class="text-gray-300 cursor-pointer">Archive only (keep historical data, hide from generator)</label>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 pt-2">
+        <button id="btn-cancel-delete-modal" class="btn-secondary text-xs">Cancel</button>
+        <button id="btn-confirm-delete-cat" class="btn-primary text-xs bg-rose-600 hover:bg-rose-500">Confirm Deletion</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Combined Prompt Preview Modal -->
+  <div id="prompt-preview-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-50 hidden overflow-y-auto">
+    <div class="cosmos-card max-w-3xl w-full p-6 space-y-4 my-8">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="eye" class="w-5 h-5 text-violet-400"></i>
+          <div>
+            <h3 class="font-bold text-base text-white">Compiled AI Prompt Preview</h3>
+            <p class="text-[11px] text-gray-400">Review exact instructions passed to Ollama (Qwen 7B) before generation</p>
+          </div>
+        </div>
+        <button id="btn-close-prompt-preview" class="text-gray-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs max-h-[60vh] overflow-y-auto pr-1">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-violet-400 uppercase tracking-wider text-[10px]">System Prompt (Directives & Language Rules)</span>
+            <button id="btn-copy-sys-prompt" class="text-[10px] text-gray-400 hover:text-white flex items-center gap-1">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+          <pre id="preview-sys-prompt-text" class="p-3 rounded-xl bg-gray-900 border border-gray-800 text-[11px] text-gray-300 font-mono whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto"></pre>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-cyan-400 uppercase tracking-wider text-[10px]">User Prompt (Concept, Category & Custom Directives)</span>
+            <button id="btn-copy-user-prompt" class="text-[10px] text-gray-400 hover:text-white flex items-center gap-1">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+          <pre id="preview-user-prompt-text" class="p-3 rounded-xl bg-gray-900 border border-gray-800 text-[11px] text-gray-300 font-mono whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto"></pre>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 border-t border-gray-800 pt-3">
+        <button id="btn-close-prompt-preview-2" class="btn-secondary text-xs">Close</button>
+        <button id="btn-proceed-generate-from-preview" class="btn-primary text-xs">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Proceed to Generate with Qwen</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal for Public Upload -->
+  <div id="public-confirm-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-50 hidden">
+    <div class="cosmos-card max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center space-x-3 text-rose-400">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+        <h3 class="font-bold text-base text-white">Explicit Public Upload Approval</h3>
+      </div>
+      <p class="text-xs text-gray-300 leading-relaxed">
+        You are about to publish this video <strong class="text-rose-400">PUBLICLY</strong> to your YouTube channel <strong>COSMOS VIRAL</strong>. Once uploaded, it will immediately be visible to your subscribers and the YouTube algorithm.
+      </p>
+      <div class="p-3 bg-gray-900 rounded-xl border border-gray-800 text-xs">
+        <p class="font-bold text-white mb-1" id="confirm-modal-video-title">Video Title</p>
+        <p class="text-gray-400">Recommended: Upload as Private first to verify audio levels and subtitle timing.</p>
+      </div>
+      <div class="flex items-center justify-end space-x-3 pt-2">
+        <button id="btn-modal-cancel" class="btn-secondary text-xs">Cancel</button>
+        <button id="btn-modal-confirm-public" class="btn-primary text-xs bg-rose-600 hover:bg-rose-500">I Confirm Public Release</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Video Modal with Auto Best Time -->
+  <div id="schedule-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-50 hidden overflow-y-auto">
+    <div class="cosmos-card max-w-lg w-full p-6 space-y-4 my-8">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-white">Schedule Video Upload</h3>
+            <p class="text-[11px] text-gray-400 truncate max-w-xs" id="schedule-modal-video-title">Select video to schedule</p>
+          </div>
+        </div>
+        <button id="btn-close-schedule-modal" class="text-gray-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Auto Best Time Optimization Banner -->
+      <div class="p-3.5 bg-gradient-to-r from-violet-950/60 to-cyan-950/60 rounded-xl border border-violet-500/40 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-violet-300 font-bold flex items-center gap-1.5 text-xs">
+            <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+            <span>Optimal Viral Release Window (Asia/Kolkata)</span>
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">PEAK ENGAGEMENT</span>
+        </div>
+        <p class="text-[11px] text-gray-300 leading-relaxed">
+          Hindi educational audience activity peaks at <strong class="text-white" id="modal-best-time-text">18:30 IST Today</strong>. Scheduling your Short at this time maximizes push into the YouTube Shorts feed.
+        </p>
+        <button type="button" id="btn-apply-best-time" class="w-full py-2 px-3 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+          <span id="btn-apply-best-time-label">⚡ Set to Next Peak Window (18:30 IST)</span>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-gray-300 mb-1">Target Date & Time (IST)</label>
+          <input type="datetime-local" id="schedule-datetime" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-violet-500 font-mono">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-gray-300 mb-1">Scheduling Mode</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="p-2.5 bg-gray-900 border border-violet-500/40 rounded-xl cursor-pointer flex items-start space-x-2">
+              <input type="radio" name="sched_mode" id="mode-direct-yt" value="youtube" checked class="mt-0.5 text-violet-600 focus:ring-0">
+              <div>
+                <p class="font-bold text-white text-[11px]">Upload as Scheduled on YouTube</p>
+                <p class="text-[10px] text-gray-400">Uploads now; YouTube automatically publishes at the chosen time.</p>
+              </div>
+            </label>
+            <label class="p-2.5 bg-gray-900 border border-gray-800 rounded-xl cursor-pointer flex items-start space-x-2">
+              <input type="radio" name="sched_mode" id="mode-local-cal" value="calendar" class="mt-0.5 text-violet-600 focus:ring-0">
+              <div>
+                <p class="font-bold text-white text-[11px]">COSMOS Local Calendar</p>
+                <p class="text-[10px] text-gray-400">Saves date in your internal planner without uploading yet.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 border-t border-gray-800 pt-3">
+        <button id="btn-cancel-schedule-modal" class="btn-secondary text-xs">Cancel</button>
+        <button id="btn-confirm-schedule" class="btn-primary text-xs w-2/3 justify-center">
+          <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
+          <span id="btn-confirm-schedule-label">Confirm & Schedule Video</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript Bundle -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
