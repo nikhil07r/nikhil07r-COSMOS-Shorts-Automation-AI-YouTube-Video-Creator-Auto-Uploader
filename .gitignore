@@ -32,6 +32,7 @@ logs/
 /MoneyPrinterTurbo/config.toml
 /MoneyPrinterTurbo/config.toml.backup_*
 /MoneyPrinterTurbo/config.toml.bak
+/MoneyPrinterTurbo/.git/
 /MoneyPrinterTurbo/storage/
 /cosmos_shorts/cosmos_config.toml
 /cosmos_shorts/cosmos_history.json

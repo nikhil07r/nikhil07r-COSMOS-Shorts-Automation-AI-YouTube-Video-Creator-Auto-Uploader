@@ -1,0 +1,465 @@
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, mock_open, patch
+
+import requests
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from app.services.upload_post import UploadPostService
+
+
+_CONFIG_BASE = {
+    "upload_post_enabled": True,
+    "upload_post_api_key": "test-key",
+    "upload_post_username": "testuser",
+    "upload_post_platforms": ["tiktok", "instagram", "youtube"],
+    "upload_post_auto_upload": True,
+    "upload_post_youtube_privacy_status": "unlisted",
+}
+
+
+def _mock_response(success=True):
+    r = MagicMock()
+    r.status_code = 200
+    r.json.return_value = {
+        "success": success,
+        "request_id": "abc123",
+        "results": {
+            platform: {"success": success}
+            for platform in _CONFIG_BASE["upload_post_platforms"]
+        },
+    }
+    r.raise_for_status = MagicMock()
+    return r
+
+
+def _get(data, key):
+    for k, v in data:
+        if k == key:
+            return v
+    return None
+
+
+def _get_all(data, key):
+    return [v for k, v in data if k == key]
+
+
+def _has_key(data, key):
+    return any(k == key for k, v in data)
+
+
+class TestUploadPostService(unittest.TestCase):
+    @patch(
+        "app.services.upload_post.config.app",
+        {**_CONFIG_BASE, "upload_post_enabled": False},
+    )
+    @patch("app.services.upload_post.requests.post")
+    def test_unconfigured_service_skips_request(self, mock_post):
+        """功能未启用时不能意外上传文件或消耗第三方 API 配额。"""
+        result = UploadPostService().upload_video("/fake/v.mp4", "Title")
+
+        self.assertFalse(result["success"])
+        self.assertIn("not configured", result["error"])
+        mock_post.assert_not_called()
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=False)
+    @patch("app.services.upload_post.requests.post")
+    def test_missing_video_skips_request(self, mock_post, _exists):
+        """本地成片不存在时应在发起网络请求前返回明确错误。"""
+        result = UploadPostService().upload_video("/missing/v.mp4", "Title")
+
+        self.assertFalse(result["success"])
+        self.assertIn("Video file not found", result["error"])
+        mock_post.assert_not_called()
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_upload_request_error_returns_failure(self, mock_post, _exists):
+        """网络异常需要转换为稳定结果，不能让发布失败中断视频生成任务。"""
+        mock_post.side_effect = requests.exceptions.Timeout("upload timed out")
+
+        result = UploadPostService().upload_video("/fake/v.mp4", "Title")
+
+        self.assertFalse(result["success"])
+        self.assertIn("upload timed out", result["error"])
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_upload_does_not_replay_video_on_redirect(self, mock_post, _exists):
+        """A 307 must not resend the video or API key to the redirect target."""
+        response = _mock_response()
+        response.status_code = 307
+        response.headers = {"Location": "https://other.example/upload"}
+        mock_post.return_value = response
+
+        result = UploadPostService().upload_video("/fake/v.mp4", "Title")
+
+        self.assertFalse(result["success"])
+        self.assertIn("redirect", result["error"])
+        self.assertIs(mock_post.call_args.kwargs.get("allow_redirects"), False)
+        response.json.assert_not_called()
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.requests.get")
+    def test_check_status_returns_payload_or_network_failure(self, mock_get):
+        """状态查询成功和失败应使用与上传接口一致的返回约定。"""
+        response = _mock_response()
+        response.json.return_value = {"success": True, "status": "processing"}
+        mock_get.return_value = response
+        service = UploadPostService()
+
+        self.assertEqual(
+            service.check_status("request-123"),
+            {"success": True, "status": "processing"},
+        )
+
+        mock_get.side_effect = requests.exceptions.ConnectionError("offline")
+        failed = service.check_status("request-123")
+        self.assertFalse(failed["success"])
+        self.assertIn("offline", failed["error"])
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_upload_rejects_unexpected_json_shape(self, mock_post, _exists):
+        """A malformed provider payload must not abort subsequent video uploads."""
+        response = _mock_response()
+        response.json.return_value = ["unexpected"]
+        mock_post.side_effect = [response, _mock_response()]
+
+        service = UploadPostService()
+        result = service.upload_video("/fake/v.mp4", "Title")
+
+        self.assertEqual(result["success"], False)
+        self.assertIn("invalid response", result["error"])
+        self.assertTrue(service.upload_video("/fake/next.mp4", "Next")["success"])
+        self.assertEqual(mock_post.call_count, 2)
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.requests.get")
+    def test_status_rejects_unexpected_json_shape(self, mock_get):
+        response = _mock_response()
+        response.json.return_value = ["unexpected"]
+        mock_get.return_value = response
+
+        result = UploadPostService().check_status("request-123")
+
+        self.assertEqual(result["success"], False)
+        self.assertIn("invalid response", result["error"])
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_upload_does_not_treat_string_false_as_success(self, mock_post, _exists):
+        response = _mock_response()
+        response.json.return_value = {"success": "false", "request_id": "abc123"}
+        mock_post.return_value = response
+
+        result = UploadPostService().upload_video("/fake/v.mp4", "Title")
+
+        self.assertIs(result["success"], False)
+        self.assertIn("invalid response", result["error"])
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_sync_upload_reports_failed_platform(self, mock_post, _exists):
+        """Top-level success means accepted even when one platform failed."""
+        response = _mock_response()
+        response.json.return_value = {
+            "success": True,
+            "results": {
+                "instagram": {"success": True},
+                "linkedin": {"success": False, "error": "account expired"},
+            },
+        }
+        mock_post.return_value = response
+
+        result = UploadPostService().upload_video(
+            "/fake/v.mp4", "Title", platforms=["instagram", "linkedin"]
+        )
+
+        self.assertIs(result["success"], False)
+        self.assertIn("linkedin", result["error"])
+        self.assertIn("results", result)
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_upload_without_results_uses_request_id_to_confirm_status(
+        self, mock_post, _exists
+    ):
+        """A returned request ID is still an in-flight upload without results."""
+        response = _mock_response()
+        response.json.return_value = {"success": True, "request_id": "req-only"}
+        mock_post.return_value = response
+
+        with patch.object(
+            UploadPostService,
+            "check_status",
+            return_value={
+                "status": "completed",
+                "results": [{"platform": "tiktok", "success": True}],
+            },
+        ) as check_status:
+            result = UploadPostService().upload_video(
+                "/fake/v.mp4", "Title", platforms=["tiktok"]
+            )
+
+        self.assertIs(result["success"], True)
+        check_status.assert_called_once_with("req-only")
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_upload_with_malformed_platform_results_fails(self, mock_post, _exists):
+        response = _mock_response()
+        response.json.return_value = {"success": True, "results": "unavailable"}
+        mock_post.return_value = response
+
+        result = UploadPostService().upload_video(
+            "/fake/v.mp4", "Title", platforms=["tiktok"]
+        )
+
+        self.assertIs(result["success"], False)
+        self.assertIn("invalid platform results", result["error"])
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_background_upload_waits_for_platform_results(self, mock_post, _exists):
+        """A 200 background acceptance must not become a completed cross-post."""
+        response = _mock_response()
+        response.json.return_value = {
+            "success": True,
+            "message": "Upload initiated successfully in background.",
+            "request_id": "req-123",
+            "total_platforms": 2,
+        }
+        mock_post.return_value = response
+
+        with (
+            patch.object(
+                UploadPostService,
+                "check_status",
+                side_effect=[
+                    {"request_id": "req-123", "status": "processing"},
+                    {
+                        "request_id": "req-123",
+                        "status": "completed",
+                        "results": [
+                            {"platform": "instagram", "success": True},
+                            {"platform": "linkedin", "success": False},
+                        ],
+                    },
+                ],
+            ) as check_status,
+            patch("app.services.upload_post.time", create=True) as clock,
+        ):
+            clock.monotonic.return_value = 0
+            result = UploadPostService().upload_video(
+                "/fake/v.mp4", "Title", platforms=["instagram", "linkedin"]
+            )
+
+        self.assertIs(result["success"], False)
+        self.assertIn("linkedin", result["error"])
+        self.assertEqual(result["request_id"], "req-123")
+        self.assertEqual(check_status.call_count, 2)
+        clock.sleep.assert_called_once()
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_background_upload_reports_completed_platforms(self, mock_post, _exists):
+        response = _mock_response()
+        response.json.return_value = {
+            "success": True,
+            "message": "Upload initiated successfully in background.",
+            "request_id": "req-complete",
+            "total_platforms": 1,
+        }
+        mock_post.return_value = response
+        completed = {
+            "status": "completed",
+            "results": [{"platform": "tiktok", "success": True}],
+        }
+        with patch.object(
+            UploadPostService, "check_status", return_value=completed
+        ) as check_status:
+            result = UploadPostService().upload_video(
+                "/fake/v.mp4", "Title", platforms=["tiktok"]
+            )
+
+        self.assertIs(result["success"], True)
+        self.assertEqual(result["request_id"], "req-complete")
+        check_status.assert_called_once_with("req-complete")
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_background_upload_timeout_keeps_request_id(self, mock_post, _exists):
+        response = _mock_response()
+        response.json.return_value = {
+            "success": True,
+            "message": "Upload initiated successfully in background.",
+            "request_id": "req-slow",
+        }
+        mock_post.return_value = response
+        with (
+            patch.object(
+                UploadPostService,
+                "check_status",
+                return_value={"status": "processing"},
+            ) as check_status,
+            patch("app.services.upload_post._UPLOAD_STATUS_TIMEOUT_SECONDS", 0),
+            patch("app.services.upload_post.time") as clock,
+        ):
+            clock.monotonic.return_value = 0
+            result = UploadPostService().upload_video(
+                "/fake/v.mp4", "Title", platforms=["tiktok"]
+            )
+
+        self.assertIs(result["success"], False)
+        self.assertEqual(result["request_id"], "req-slow")
+        self.assertIn("did not complete", result["error"])
+        check_status.assert_called_once()
+        clock.sleep.assert_not_called()
+
+
+class TestUploadPostYouTubePayload(unittest.TestCase):
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_youtube_fields_en_payload(self, mock_post, _exists):
+        mock_post.return_value = _mock_response()
+        svc = UploadPostService()
+
+        svc.upload_video("/fake/v.mp4", "Título", youtube_extra={
+            "youtube_title": "Mi Short",
+            "youtube_description": "Descripción",
+            "tags": ["ia", "shorts"],
+            "privacyStatus": "unlisted",
+        })
+
+        data = mock_post.call_args[1]["data"]
+        self.assertEqual(_get(data, "youtube_title"), "Mi Short")
+        self.assertEqual(_get(data, "youtube_description"), "Descripción")
+        self.assertEqual(_get_all(data, "tags[]"), ["ia", "shorts"])
+        self.assertEqual(_get(data, "privacyStatus"), "unlisted")
+        self.assertEqual(_get(data, "containsSyntheticMedia"), "true")
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_contains_synthetic_media_siempre_true(self, mock_post, _exists):
+        mock_post.return_value = _mock_response()
+        svc = UploadPostService()
+
+        svc.upload_video("/fake/v.mp4", "T", youtube_extra={"containsSyntheticMedia": False})
+
+        data = mock_post.call_args[1]["data"]
+        self.assertEqual(_get(data, "containsSyntheticMedia"), "true")
+
+    @patch("app.services.upload_post.config.app", {
+        **_CONFIG_BASE,
+        "upload_post_platforms": ["tiktok", "instagram"],
+    })
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_tiktok_instagram_sin_youtube_fields(self, mock_post, _exists):
+        mock_post.return_value = _mock_response()
+        svc = UploadPostService()
+        svc.upload_video("/fake/v.mp4", "T")
+
+        data = mock_post.call_args[1]["data"]
+        self.assertFalse(_has_key(data, "youtube_title"))
+        self.assertFalse(_has_key(data, "containsSyntheticMedia"))
+        self.assertFalse(_has_key(data, "privacyStatus"))
+
+    @patch("app.services.upload_post.config.app", {
+        **_CONFIG_BASE,
+        "upload_post_platforms": ["tiktok"],
+    })
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_youtube_extra_ignorado_si_youtube_no_en_platforms(self, mock_post, _exists):
+        mock_post.return_value = _mock_response()
+        svc = UploadPostService()
+        svc.upload_video("/fake/v.mp4", "T", youtube_extra={"youtube_title": "irrelevante"})
+
+        data = mock_post.call_args[1]["data"]
+        self.assertFalse(_has_key(data, "youtube_title"))
+
+    @patch("app.services.upload_post.config.app", _CONFIG_BASE)
+    @patch("app.services.upload_post.os.path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"fake"))
+    @patch("app.services.upload_post.requests.post")
+    def test_endpoint_y_platform_format_correcto(self, mock_post, _exists):
+        mock_post.return_value = _mock_response()
+        svc = UploadPostService()
+        svc.upload_video("/fake/v.mp4", "T")
+
+        call_url = mock_post.call_args[0][0]
+        self.assertTrue(call_url.endswith("/api/upload"), f"Endpoint incorrecto: {call_url}")
+
+        data = mock_post.call_args[1]["data"]
+        platforms = _get_all(data, "platform[]")
+        self.assertIn("tiktok", platforms)
+        self.assertIn("instagram", platforms)
+        self.assertIn("youtube", platforms)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class TestUploadPostServiceDynamicConfig(unittest.TestCase):
+    def test_upload_post_service_dynamically_reads_config(self):
+        test_app_config = {
+            "upload_post_api_key": "",
+            "upload_post_username": "",
+            "upload_post_enabled": False,
+            "upload_post_auto_upload": False,
+            "upload_post_platforms": ["tiktok"],
+        }
+        
+        with patch("app.services.upload_post.config.app", test_app_config):
+            service = UploadPostService()
+            self.assertFalse(service.is_configured())
+            self.assertFalse(service.enabled)
+            self.assertFalse(service.auto_upload)
+            
+            test_app_config["upload_post_enabled"] = True
+            test_app_config["upload_post_auto_upload"] = True
+            test_app_config["upload_post_api_key"] = "test-key"
+            test_app_config["upload_post_username"] = "test-user"
+            test_app_config["upload_post_platforms"] = ["tiktok", "instagram"]
+            
+            self.assertTrue(service.enabled)
+            self.assertTrue(service.auto_upload)
+            self.assertEqual(service.api_key, "test-key")
+            self.assertTrue(service.is_configured())
+            self.assertIn("instagram", service.platforms)
+            
+            test_app_config["upload_post_enabled"] = False
+            self.assertFalse(service.enabled)
+            self.assertFalse(service.is_configured())
