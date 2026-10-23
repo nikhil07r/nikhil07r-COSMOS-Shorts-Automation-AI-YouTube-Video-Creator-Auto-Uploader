@@ -1,0 +1,14 @@
+MoneyPrinterTurbo
+利用AI大模型，一键生成高清短视频
+https://github.com/harry0703/MoneyPrinterTurbo
+
+
+双击 start.bat 启动
+双击 update.bat 自动更新代码
+
+
+********** 特别注意 ********** 
+如果无法启动，请检查文件夹名称是否有 中文、特殊字符，或空格等。
+比如：
+C:\Users\harry\下载\MoneyPrinterTurbo       这个路径可能启动失败
+C:\Users\harry\Download\MoneyPrinterTurbo   请把中文改成英文，或者移除中文文件夹

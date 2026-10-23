@@ -1,0 +1,101 @@
+[
+  {
+    "id": "strange_places_01",
+    "category": "Strange Places",
+    "topic_en": "5 Most Mysterious Places on Earth",
+    "topic_hi": "दुनिया की 5 सबसे रहस्यमयी जगहें",
+    "master_script": "क्या आप जानते हैं हमारी पृथ्वी पर कुछ ऐसी जगहें मौजूद हैं जो किसी दूसरी दुनिया जैसी लगती हैं? नंबर 1: बोलीविया का सलार दे उयुनी — बारिश के बाद यह नमक का मैदान दुनिया का सबसे बड़ा प्राकृतिक आईना बन जाता है। नंबर 2: यमन का सोकोट्रा आइलैंड — यहाँ के ड्रैगन ब्लड पेड़ ऐसे अजीब दिखते हैं मानो आप किसी एलियन की दुनिया में आ गए हों। नंबर 3: तुर्की का पामुक्काले — कुदरत के बनाए बर्फ जैसे सफ़ेद पत्थरों के बीच गर्म पानी के जादुई झरने। नंबर 4: न्यूज़ीलैंड की वैटोमो गुफाएं — जहाँ अंधेरी गुफाओं में लाखों नीले ग्लोवर्म्स तारों की तरह चमकते हैं। और नंबर 5: तुर्कमेनिस्तान का नर्क का दरवाज़ा — जहाँ ज़मीन का एक विशाल गड्ढा पिछले 50 सालों से लगातार धधक रहा है। इनमें से आप किस जगह पर जाना चाहेंगे? कमेंट में ज़रूर बताएं!",
+    "sequential_search_terms": [
+      "planet earth from space",
+      "salar de uyuni mirror reflection",
+      "dragon blood tree",
+      "pamukkale thermal pools",
+      "waitomo glowworm cave blue light",
+      "darvaza gas crater fire pit",
+      "milky way galaxy starry night sky"
+    ],
+    "theme_color": "#FF3366",
+    "thumbnail_text": "ये सच में है?!"
+  },
+  {
+    "id": "space_01",
+    "category": "Space",
+    "topic_en": "Terrifying Things Happening in Space Right Now",
+    "topic_hi": "अंतरिक्ष की 4 सबसे डरावनी घटनाएं",
+    "master_script": "क्या आप जानते हैं हमारे ब्रह्मांड में ऐसी भयानक घटनाएं घट रही हैं जो हमारी पूरी पृथ्वी को पलक झपकते ही तबाह कर सकती हैं? नंबर 1: सुपरमैसिव ब्लैक होल — अंतरिक्ष का वो भूखा दानव जिससे प्रकाश भी बचकर नहीं निकल सकता। नंबर 2: सुपरनोवा विस्फोट — जब कोई विशाल तारा मरता है तो होने वाला महाविस्फोट अरबों सूर्यों जितनी ऊर्जा छोड़ता है। नंबर 3: रोग प्लैनेट्स — बिना किसी तारे के अंतरिक्ष के अंधेरे और भयंकर ठंड में भटकते हुए अनाथ ग्रह। और नंबर 4: न्यूट्रॉन स्टार — जिसका सिर्फ एक चम्मच पदार्थ पूरी पृथ्वी के सभी इंसानों और पहाड़ों से भी भारी होता है। अंतरिक्ष की इन शक्तियों के सामने हम कितने छोटे हैं, कमेंट में ज़रूर बताएं!",
+    "sequential_search_terms": [
+      "galaxy space universe rotating",
+      "black hole space",
+      "supernova explosion space",
+      "deep space dark planet",
+      "neutron star pulsar space",
+      "earth from space stars milky way"
+    ],
+    "theme_color": "#00E5FF",
+    "thumbnail_text": "कांप उठेंगे आप!"
+  },
+  {
+    "id": "dangerous_nature_01",
+    "category": "Dangerous Places",
+    "topic_en": "Most Dangerous Islands on Earth",
+    "topic_hi": "धरती के सबसे खतरनाक द्वीप जहां जाना मना है",
+    "master_script": "क्या आप जानते हैं इस दुनिया में ऐसे भी द्वीप हैं जहाँ कदम रखते ही मौत का सामना हो सकता है? नंबर 1: स्नेक आइलैंड, ब्राज़ील — यहाँ हर एक वर्ग मीटर में दुनिया के सबसे जहरीले गोल्डन लांसहेड सांप मौजूद हैं, जहाँ आम इंसानों का जाना बिल्कुल बैन है। नंबर 2: नॉर्थ सेंटिनल आइलैंड, भारत — यहाँ रहने वाली जनजाति बाहरी दुनिया के किसी भी इंसान को देखते ही तीरों की बारिश कर देती है। और नंबर 3: मियाके-जिमा, जापान — एक ऐसा ज्वालामुखी द्वीप जहाँ हवा में ज़हरीली गैस इतनी ज्यादा है कि यहाँ रहने वालों को हमेशा गैस मास्क पहनना पड़ता है। इनमें से कौन सा द्वीप आपको सबसे ख़ौफ़नाक लगा? कमेंट में बताएं!",
+    "sequential_search_terms": [
+      "ocean storm island aerial",
+      "viper snake crawling wild",
+      "isolated tropical island aerial",
+      "volcano crater smoke aerial",
+      "dark stormy ocean waves"
+    ],
+    "theme_color": "#FF2A55",
+    "thumbnail_text": "जाना सख्त मना!"
+  },
+  {
+    "id": "ocean_mystery_01",
+    "category": "Science & Nature",
+    "topic_en": "Deep Ocean Creatures That Look Alien",
+    "topic_hi": "समुद्र की गहराइयों के सबसे अजीबोगरीब जीव",
+    "master_script": "क्या आप जानते हैं हमारे समुद्र की गहराइयों में ऐसे भयानक जीव रहते हैं जो किसी हॉरर फ़िल्म के एलियन से कम नहीं दिखते? नंबर 1: एंग्लरफ़िश — गहरे काले अंधेरे में अपने सिर पर रोशनी का बल्ब जलाकर शिकार को अपनी ओर खींचने वाली भयानक शिकारी मछली। नंबर 2: जाइंट स्क्विड — समुद्र की अतल गहराइयों का दानव, जिसकी आंखें बास्केटबॉल जितनी बड़ी होती हैं। और नंबर 3: बायोल्यूमिनसेंट जेलीफ़िश — जो अंधेरे पानी में नीली और हरी बिजली जैसी रोशनी बिखेरती हैं मानो जादू चल रहा हो। समुद्र की इस अंधेरी दुनिया के बारे में आपकी क्या राय है? कमेंट में ज़रूर बताएं!",
+    "sequential_search_terms": [
+      "deep dark ocean abyss underwater",
+      "deep sea anglerfish underwater",
+      "giant squid underwater ocean",
+      "bioluminescent jellyfish underwater",
+      "deep ocean glowing creatures"
+    ],
+    "theme_color": "#00D2FF",
+    "thumbnail_text": "असली एलियंस?!"
+  },
+  {
+    "id": "ancient_history_01",
+    "category": "Human History",
+    "topic_en": "Ancient Wonders Science Still Cannot Explain",
+    "topic_hi": "प्राचीन दुनिया के रहस्य जिन्हें विज्ञान भी नहीं सुलझा पाया",
+    "master_script": "क्या आप जानते हैं हमारे पूर्वजों ने हज़ारों साल पहले ऐसे चमत्कार बना दिए जिन्हें आज की आधुनिक साइंस भी नहीं समझा पा रही? नंबर 1: गीज़ा के महान पिरामिड — 20 लाख से ज़्यादा भारी पत्थरों को बिना किसी आधुनिक क्रेन या मशीन के इतनी सटीकता से कैसे तराशा और जोड़ा गया? नंबर 2: स्टोनहेंज — इंग्लैंड के विशाल रहस्यमयी पत्थरों का घेरा, जिसे हज़ारों मील दूर से लाकर किसने और क्यों खड़ा किया? और नंबर 3: डेरिनकुयु — ज़मीन के 280 फीट नीचे बसा 18 मंजिला प्राचीन शहर जहाँ 20 हज़ार लोग छुपकर रह सकते थे। क्या प्राचीन इंसान हमसे भी ज़्यादा एडवांस थे? कमेंट में ज़रूर बताएं!",
+    "sequential_search_terms": [
+      "ancient ruins desert sunset",
+      "pyramids of giza cairo egypt",
+      "stonehenge england aerial",
+      "cappadocia underground cave city",
+      "ancient wonders history desert"
+    ],
+    "theme_color": "#FFB800",
+    "thumbnail_text": "विज्ञान भी हैरान!"
+  },
+  {
+    "id": "extreme_weather_01",
+    "category": "Science & Nature",
+    "topic_en": "Most Shocking Weather Phenomena",
+    "topic_hi": "कुदरत के सबसे भयानक मौसम के रूप",
+    "master_script": "क्या आप जानते हैं हमारी कुदरत जब अपना भयानक रूप दिखाती है तो आसमान से ऐसे नज़ारे बरसते हैं जो रोंगटे खड़े कर देते हैं? नंबर 1: कैटाटुम्बो बिजली — वेनेज़ुएला की वो जगह जहाँ साल में 300 रातें लगातार आसमान से भयानक बिजली कड़कती रहती है। नंबर 2: सुपरसेल बवंडर — बादलों से ज़मीन तक उतरता हुआ हवा का घूमता हुआ दैत्य जो रास्ते में आने वाले पूरे शहर को उड़ा ले जाता है। और नंबर 3: वोल्केनिक लाइटनिंग — जब धधकते ज्वालामुखी के काले धुएँ के बीच आग और बिजली एक साथ टकराती हैं। कुदरत की इस ताकत को देखकर आपको कैसा लगा? कमेंट में ज़रूर बताएं!",
+    "sequential_search_terms": [
+      "dark thunder clouds storm time lapse",
+      "catatumbo lightning night storm",
+      "supercell tornado storm funnel",
+      "volcanic lightning eruption night",
+      "dramatic thunderstorm sky epic"
+    ],
+    "theme_color": "#00FF66",
+    "thumbnail_text": "रोंगटे खड़े कर देगा!"
+  }
+]

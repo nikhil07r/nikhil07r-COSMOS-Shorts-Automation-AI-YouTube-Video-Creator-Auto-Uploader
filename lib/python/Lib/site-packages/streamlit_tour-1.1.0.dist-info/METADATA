@@ -1,0 +1,161 @@
+Metadata-Version: 2.4
+Name: streamlit-tour
+Version: 1.1.0
+Summary: Streamlit component that implement the wonderful Driver.js library. It allows you to start a tour that takes the user through the component that you want
+Author-email: Malo <malo.potereau@gmail.com>
+License-Expression: BSD-3-Clause
+Project-URL: Homepage, https://github.com/mp-mech-ai/streamlit_tour
+Project-URL: Repository, https://github.com/mp-mech-ai/streamlit_tour
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: streamlit>=1.51
+Provides-Extra: devel
+Requires-Dist: pytest==7.4.0; extra == "devel"
+Requires-Dist: playwright==1.48.0; extra == "devel"
+Requires-Dist: requests==2.31.0; extra == "devel"
+Requires-Dist: pytest-playwright-snapshot==1.0; extra == "devel"
+Requires-Dist: pytest-rerunfailures==12.0; extra == "devel"
+Requires-Dist: streamlit>=1.51; extra == "devel"
+Dynamic: license-file
+
+[![PyPI version](https://img.shields.io/pypi/v/streamlit-tour)](https://pypi.org/project/streamlit-tour/)
+[![Python versions](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fmp-mech-ai%2Fstreamlit_tour%2Frefs%2Fheads%2Fmaster%2Fpyproject.toml
+)](https://pypi.org/project/streamlit-tour/)
+[![License](https://img.shields.io/pypi/l/streamlit-tour)](./LICENSE)
+
+
+# :camera: streamlit-tour
+
+A [Driver.js](https://driverjs.com/) integration for [Streamlit](https://streamlit.io/) - add beautiful, interactive guided tours to your Streamlit apps with a single Python call.
+
+<!-- Replace the line below with your actual GIF -->
+![streamlit-tour demo](assets/streamlit-tour-demo.gif)
+
+
+## Features
+
+- :link: **Bind tour steps to any Streamlit widget** by its `key`
+- :window: **Element-free info steps** - show contextual popups not anchored to any component
+- :white_check_mark: **One-time tours** - automatically skip tours the user has already completed (via `localStorage`)
+- :leftwards_arrow_with_hook: **State feedback** - know exactly when a tour was finished, dismissed, or skipped
+- :art: **Configurable** - control overlay opacity, animations, progress indicators, and popover alignment
+
+
+## Installation
+
+```bash
+pip install streamlit-tour
+```
+Or in a more modern way:
+
+```bash
+uv add streamlit-tour
+```
+
+
+## Quickstart
+
+```python
+import streamlit as st
+from streamlit_tour import Tour
+
+st.title("My App")
+st.text_input("Name", key="name_input")
+
+tour = Tour(
+    steps=[
+        Tour.bind("name_input", title="Your Name", desc="Enter your name here."),
+        Tour.info(title="That's it!", desc="You're ready to go."),
+    ]
+)
+
+tour.start()
+```
+
+
+## Usage
+
+### `Tour.start()`
+
+Launches the tour. Call this inside any conditional block (e.g. a button click) or make sure to specify `one_time_tour=True`.
+
+
+### `Tour.result`
+Stores a TourStatus object with the tour's current state:
+
+| Key            | Type   | Description                                          |
+|----------------|--------|------------------------------------------------------|
+| `currentStep`  | `int`  | Last step index the user reached                     |
+| `dismissed`    | `bool` | `True` if the user closed the tour before finishing  |
+| `finished`     | `bool` | `True` if the user completed all steps               |
+| `skipped`      | `bool` | `True` if the tour was skipped (one-time, already seen) |
+
+### `Tour.bind()`
+
+---
+
+Attaches a tour step to a Streamlit widget via its `key`.
+
+```python
+Tour.bind(
+    key="my_widget_key",        # Must match the widget's key= argument
+    title="Step Title",
+    desc="Step description text.",
+    side="bottom",              # "top" | "bottom" | "left" | "right" (optional)
+    align="center",             # "start" | "center" | "end" (optional)
+)
+```
+
+> **How it works:** `Tour.bind` resolves the widget using Streamlit's `.st-key-<key>` CSS class, which is automatically injected on any widget that has a `key=` argument.
+
+
+### `Tour.info()`
+
+---
+
+Creates a floating step with no element anchor - useful for introductory or summary slides.
+
+```python
+Tour.info(
+    title="Welcome!",
+    desc="This tour will walk you through the main features of this app.",
+)
+```
+
+
+## One-Time Tour
+
+Set `one_time_tour=True` to automatically skip the tour for users who have already seen it. Completion is tracked in the browser's `localStorage` using the tour's `key`.
+
+```python
+Tour.start(
+    steps=[...],
+    one_time_tour=True,
+    key="onboarding_tour",   # Must be unique and stable across reruns
+)
+```
+
+To reset the tour (e.g. for testing), clear `localStorage` in your browser's DevTools, or use a different `key`.
+
+Check out `example.py` file for a complete example of usage.
+
+## Tips
+
+- **Always provide a `key`** when using `one_time_tour=True` or when you have multiple tours on the same page.
+- **Widgets must have a `key=` argument** for `Tour.bind()` to locate them. Anonymous widgets (no `key`) are not bindable.
+- **Re-triggering a tour:** Change the `key` value between Streamlit reruns to force the tour to restart.
+- **Column layouts:** Use `side` and `align` on `Tour.bind()` to control which side the popover appears on narrow widgets.
+
+
+## Roadmap / Possible Improvements
+
+- [X] **Better output** - make the Tour returns an object instead of a simple dict
+- [ ] **Tabs and Pages** - make the Tour navigate between tabs and pages (maybe with an intermediate Python actions ?)
+- [X] **`Tour.reset()`** - a utility function to clear the one-time-tour flag from `localStorage`
+- [X] **Step grouping** - define multiple named tours and selectively launch them
+- [ ] **Theme support** - CSS variable overrides to match Streamlit's light/dark mode
+- [ ] **Driver.js parameters** - implement all the other Driver.js options
+
+
+

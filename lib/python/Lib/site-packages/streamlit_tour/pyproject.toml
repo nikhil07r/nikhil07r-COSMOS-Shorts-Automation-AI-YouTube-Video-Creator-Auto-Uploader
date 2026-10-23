@@ -1,0 +1,7 @@
+[project]
+name = "streamlit-tour"
+version = "1.1.0"
+
+[[tool.streamlit.component.components]]
+name = "streamlit_tour"
+asset_dir = "frontend/build"

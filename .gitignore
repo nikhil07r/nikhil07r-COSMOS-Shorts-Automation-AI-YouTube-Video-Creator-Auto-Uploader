@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Node.js
+node_modules/
+
+# Build output and logs
+build/
+dist/
+logs/
+*.log
+
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+**/token.json
+**/client_secret*.json
+
+# Local configuration and generated output
+/MoneyPrinterTurbo/config.toml
+/MoneyPrinterTurbo/config.toml.backup_*
+/MoneyPrinterTurbo/config.toml.bak
+/MoneyPrinterTurbo/storage/
+/cosmos_shorts/cosmos_config.toml
+/cosmos_shorts/cosmos_history.json
+/cosmos_shorts/test_thumbnail.*
+/cosmos_shorts/output/
