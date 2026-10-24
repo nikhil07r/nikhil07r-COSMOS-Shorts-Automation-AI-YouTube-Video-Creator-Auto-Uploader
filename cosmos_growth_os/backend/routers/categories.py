@@ -9,6 +9,7 @@ from backend.database import (
     get_prompt_templates, get_prompt_template_by_id,
     create_prompt_template, update_prompt_template, delete_prompt_template
 )
+from backend.cache import fast_cache
 
 router = APIRouter(prefix="/api/categories", tags=["categories"])
 logger = logging.getLogger("cosmos.categories")
@@ -69,8 +70,14 @@ class PromptTemplateRequest(BaseModel):
 @router.get("")
 def list_categories(include_disabled: bool = Query(False)):
     """Returns all active or all categories with their theme tokens."""
+    cache_key = f"categories_{include_disabled}"
+    cached = fast_cache.get(cache_key)
+    if cached is not None:
+        return cached
     cats = get_categories(include_disabled=include_disabled)
-    return {"categories": cats, "total": len(cats)}
+    res = {"categories": cats, "total": len(cats)}
+    fast_cache.set(cache_key, res, ttl_seconds=60)
+    return res
 
 @router.get("/{cat_id}")
 def get_category(cat_id: str):
@@ -84,6 +91,7 @@ def create_new_category(req: CategoryCreateRequest):
     try:
         data = req.dict()
         created = create_category(data)
+        fast_cache.invalidate("categories")
         return {"status": "created", "category": created}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -96,6 +104,7 @@ def update_existing_category(cat_id: str, req: CategoryUpdateRequest):
     try:
         data = {k: v for k, v in req.dict().items() if v is not None}
         updated = update_category(cat_id, data)
+        fast_cache.invalidate("categories")
         return {"status": "updated", "category": updated}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -109,6 +118,7 @@ def remove_category(cat_id: str, req: Optional[DeleteCategoryRequest] = None):
         archive_only = req.archive_only if req else False
         reassign_to_id = req.reassign_to_id if req else None
         result = delete_category(cat_id, reassign_to_id=reassign_to_id, archive_only=archive_only)
+        fast_cache.invalidate("categories")
         return {"status": "success", "result": result}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -120,6 +130,7 @@ def remove_category(cat_id: str, req: Optional[DeleteCategoryRequest] = None):
 def duplicate_existing_category(cat_id: str):
     try:
         dup = duplicate_category(cat_id)
+        fast_cache.invalidate("categories")
         return {"status": "duplicated", "category": dup}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -173,8 +184,14 @@ def import_categories_data(payload: Dict[str, Any]):
 # ----------------------------------------------------
 @router.get("/templates/all")
 def list_prompt_templates(category_id: Optional[str] = Query(None)):
+    cache_key = f"templates_{category_id or 'all'}"
+    cached = fast_cache.get(cache_key)
+    if cached is not None:
+        return cached
     tpls = get_prompt_templates(category_id=category_id)
-    return {"templates": tpls}
+    res = {"templates": tpls}
+    fast_cache.set(cache_key, res, ttl_seconds=60)
+    return res
 
 @router.get("/templates/{tpl_id}")
 def get_single_template(tpl_id: str):
@@ -187,6 +204,7 @@ def get_single_template(tpl_id: str):
 def create_template(req: PromptTemplateRequest):
     try:
         created = create_prompt_template(req.dict())
+        fast_cache.invalidate("templates")
         return {"status": "created", "template": created}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -195,6 +213,7 @@ def create_template(req: PromptTemplateRequest):
 def update_template(tpl_id: str, req: PromptTemplateRequest):
     try:
         updated = update_prompt_template(tpl_id, req.dict())
+        fast_cache.invalidate("templates")
         return {"status": "updated", "template": updated}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -202,6 +221,8 @@ def update_template(tpl_id: str, req: PromptTemplateRequest):
 @router.delete("/templates/{tpl_id}")
 def remove_template(tpl_id: str):
     try:
-        return delete_prompt_template(tpl_id)
+        res = delete_prompt_template(tpl_id)
+        fast_cache.invalidate("templates")
+        return res
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

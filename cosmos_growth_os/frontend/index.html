@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>COSMOS GROWTH OS — YouTube Command Center</title>
   
+  <!-- Custom Brand Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/static/images/favicon.svg" id="app-favicon">
+  <link rel="alternate icon" type="image/png" href="/static/images/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  
   <!-- Offline Vendor Libraries -->
   <script src="/static/vendor/tailwind.js"></script>
   <script>
@@ -86,6 +91,10 @@
         <button data-view="monetization" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
           <i data-lucide="trending-up" class="w-4 h-4 text-amber-400"></i>
           <span>Monetization & Times</span>
+        </button>
+        <button data-view="growth" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
+          <i data-lucide="zap" class="w-4 h-4 text-yellow-400"></i>
+          <span>Algorithm & Growth</span>
         </button>
         <button data-view="settings" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-gray-400 hover:text-white hover:bg-gray-800/60">
           <i data-lucide="settings" class="w-4 h-4 text-gray-400"></i>
@@ -331,9 +340,44 @@
             
             <!-- Story Mode Box -->
             <div id="panel-mode-story" class="cosmos-card p-5 space-y-4">
+              <!-- 2.6K Winning Blueprint Banner & Quick Topic Selector -->
+              <div class="p-3 bg-gradient-to-r from-amber-950/40 via-yellow-950/20 to-gray-900 rounded-xl border border-amber-500/30 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                    <span>🎖️</span>
+                    <span>2.6K Formula: WWII & Warfare Extreme Hacks</span>
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold">#1 WINNER STYLE</span>
+                </div>
+                <p class="text-[11px] text-gray-300">
+                  Modeled on your highest-performing Short (2,648 views). Click any topic below or type your own custom topic anytime:
+                </p>
+                <div class="flex flex-wrap gap-1.5 pt-1" id="winning-topic-pills">
+                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-amber-500/50 text-[11px] text-amber-200 hover:bg-amber-500/20 hover:text-white transition font-medium" data-topic="WWII Soldiers Turned Grenades Into Grappling Hooks">
+                    💣 Grenade Grappling Hook (2.6K Hit)
+                  </button>
+                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 hover:border-amber-500/40 hover:text-amber-200 transition" data-topic="How Soviet Night Witches Flew Silent Wooden Planes in WWII">
+                    ✈️ Soviet Night Witches (Silent Planes)
+                  </button>
+                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 hover:border-amber-500/40 hover:text-amber-200 transition" data-topic="The Inflatable Ghost Army That Fooled Hitler with Rubber Tanks">
+                    🎈 Ghost Army (Fake Rubber Tanks)
+                  </button>
+                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 hover:border-amber-500/40 hover:text-amber-200 transition" data-topic="Project Habakkuk: The Secret WWII Aircraft Carrier Made of Ice">
+                    🧊 Project Habakkuk (Ice Carrier)
+                  </button>
+                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 hover:border-amber-500/40 hover:text-amber-200 transition" data-topic="Why WWII Submariners Poured Coffee Grounds into Leaking Torpedo Tubes">
+                    ☕ Submarine Coffee Leak Fix
+                  </button>
+                  <button type="button" id="btn-surprise-wwii-topic" class="px-2.5 py-1 rounded-lg bg-amber-600/30 border border-amber-500/50 text-[11px] text-amber-300 hover:bg-amber-600 hover:text-white transition flex items-center gap-1 font-semibold">
+                    <i data-lucide="sparkles" class="w-3 h-3"></i>
+                    <span>🎲 Suggest Fresh Topic</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
-                <label class="block text-xs font-semibold text-gray-300 mb-1">Concept / Story Hook Idea</label>
-                <textarea id="studio-story-prompt" rows="3" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-violet-500" placeholder="e.g. A space rogue planet traveling through our galaxy that could collide with Earth..."></textarea>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Concept / Story Hook Idea (Customize Anytime)</label>
+                <textarea id="studio-story-prompt" rows="3" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="Type ANY custom topic here (e.g. 'How soldiers escaped with silk maps' or 'The secret spy watch of 1943')..."></textarea>
               </div>
 
               <div>
@@ -407,10 +451,16 @@
               </button>
             </div>
 
-            <!-- Ollama Model Selection -->
-            <div class="flex items-center justify-between text-xs text-gray-400 px-1">
-              <span>Local Model:</span>
-              <span class="text-violet-400 font-mono font-medium">qwen2.5:7b (Auto-fallback to 3b)</span>
+            <!-- AI Speed & Precision Mode Selector -->
+            <div class="p-2.5 bg-gray-900/60 rounded-xl border border-gray-800 flex items-center justify-between text-xs">
+              <span class="text-gray-300 font-semibold flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Generation Speed:</span>
+              </span>
+              <select id="studio-model-selector" class="bg-gray-950 border border-gray-700 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-amber-400 font-medium">
+                <option value="qwen2.5:3b" selected>⚡ Turbo Mode (~5 sec)</option>
+                <option value="qwen2.5:7b">🎯 Precision Mode (~20 sec)</option>
+              </select>
             </div>
           </div>
 
@@ -795,6 +845,403 @@
         <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <!-- Populated dynamically by JavaScript -->
         </div>
+      </section>
+
+      <!-- ================= VIEW: ALGORITHM & GROWTH DOCTOR ================= -->
+      <section id="view-growth" class="view-panel space-y-6 hidden">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs font-bold tracking-wide">
+                ALGORITHM GROWTH ENGINE
+              </span>
+              <span class="text-xs text-gray-500 font-mono">COSMOS VIRAL</span>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-white mt-1">Algorithm Doctor & Zero-View Recovery</h2>
+            <p class="text-xs text-gray-400 mt-0.5">Diagnose view freezes, craft high-retention 0–3s hooks with Qwen 7B, and cross-promote to Instagram.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btn-scan-growth" class="btn-primary text-xs bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 border-none">
+              <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+              <span>Scan Channel Algorithm</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CRITICAL ALGORITHM ALERT: SELF-VIEW PENALTY -->
+        <div class="p-4 rounded-xl border border-rose-500/40 bg-gradient-to-r from-rose-950/40 via-red-950/30 to-amber-950/20 space-y-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-2.5">
+              <div class="p-2 rounded-lg bg-rose-500/20 text-rose-400">
+                <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                  <span>CRITICAL WARNING: The "Self-View Wi-Fi Trap" (Why You Have 0–3 Views)</span>
+                  <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] uppercase font-mono">Invalid Traffic Filter</span>
+                </h3>
+                <p class="text-xs text-gray-300 mt-0.5 leading-relaxed">
+                  You noted that recent views were from your secondary account. <strong>Watching your own YouTube Shorts from devices on the same Wi-Fi/IP address immediately triggers YouTube's Invalid Traffic algorithm.</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs">
+            <div class="p-2.5 rounded-lg bg-black/40 border border-rose-500/20 space-y-1">
+              <span class="font-bold text-rose-300 flex items-center gap-1.5">
+                <i data-lucide="shield-x" class="w-3.5 h-3.5"></i>
+                1. What Happens
+              </span>
+              <p class="text-[11px] text-gray-400">YouTube detects identical hardware, IP, and Wi-Fi signatures and flags it as artificial manipulation, freezing all organic distribution.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-black/40 border border-amber-500/20 space-y-1">
+              <span class="font-bold text-amber-300 flex items-center gap-1.5">
+                <i data-lucide="ban" class="w-3.5 h-3.5"></i>
+                2. What To Stop Doing
+              </span>
+              <p class="text-[11px] text-gray-400">Never open, like, or watch your own Shorts from any account on your phone or home Wi-Fi. Check stats exclusively here or in YouTube Studio.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-black/40 border border-emerald-500/20 space-y-1">
+              <span class="font-bold text-emerald-300 flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                3. How To Recover
+              </span>
+              <p class="text-[11px] text-gray-400">Post new Shorts with high-curiosity 0–3s hooks and share to Instagram Reels with link-in-bio to send real external traffic signals.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Growth KPI Scorecard -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="cosmos-card p-4 space-y-2 border-amber-500/20">
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>Stuck Shorts (0-5 Views)</span>
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+            </div>
+            <div class="flex items-baseline space-x-2">
+              <span id="growth-stuck-count" class="text-2xl font-black text-white">--</span>
+              <span id="growth-stuck-pct" class="text-xs text-rose-400 font-medium">--% of uploads</span>
+            </div>
+            <p class="text-[11px] text-gray-500">Videos needing hook revival</p>
+          </div>
+
+          <div class="cosmos-card p-4 space-y-2 border-cyan-500/20">
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>Shorts Seed Batch Rule</span>
+              <i data-lucide="target" class="w-4 h-4 text-cyan-400"></i>
+            </div>
+            <div class="flex items-baseline space-x-2">
+              <span class="text-2xl font-black text-cyan-400">&gt; 70%</span>
+              <span class="text-xs text-emerald-400 font-medium">VVSA Goal</span>
+            </div>
+            <p class="text-[11px] text-gray-500">Viewed vs. Swiped-Away threshold</p>
+          </div>
+
+          <div class="cosmos-card p-4 space-y-2 border-violet-500/20">
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>Audience Retention Target</span>
+              <i data-lucide="clock" class="w-4 h-4 text-violet-400"></i>
+            </div>
+            <div class="flex items-baseline space-x-2">
+              <span class="text-2xl font-black text-violet-400">&gt; 75%</span>
+              <span class="text-xs text-violet-300 font-medium">APV</span>
+            </div>
+            <p class="text-[11px] text-gray-500">Avg. 38s+ on a 50s Short</p>
+          </div>
+
+          <div class="cosmos-card p-4 space-y-2 border-emerald-500/20">
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>Monetization Target (YPP)</span>
+              <i data-lucide="award" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+            <div class="flex items-baseline space-x-2">
+              <span id="growth-roadmap-subs" class="text-2xl font-black text-white">49</span>
+              <span class="text-xs text-gray-400">/ 1,000 Subs</span>
+            </div>
+            <p class="text-[11px] text-emerald-400" id="growth-roadmap-views">11,340 / 10M Views</p>
+          </div>
+        </div>
+
+        <!-- 2-Column Core Suite: Stuck Videos Audit & AI Hook Laboratory -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left Column: Stuck Videos List (6 Cols) -->
+          <div class="lg:col-span-6 cosmos-card p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="life-buoy" class="w-4 h-4 text-amber-400"></i>
+                <h3 class="font-bold text-sm text-white">Zero-View Videos Audit</h3>
+              </div>
+              <span class="text-[11px] text-gray-400">Click <strong>Revive Hook</strong> to boost</span>
+            </div>
+
+            <div id="stuck-videos-container" class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
+              <div class="text-center py-8 text-xs text-gray-500">Loading channel audit...</div>
+            </div>
+          </div>
+
+          <!-- Right Column: AI Hook Laboratory (6 Cols) -->
+          <div class="lg:col-span-6 cosmos-card p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="sparkles" class="w-4 h-4 text-violet-400"></i>
+                <h3 class="font-bold text-sm text-white">AI Hook Laboratory (Qwen 7B)</h3>
+              </div>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-medium">A/B Retention Engine</span>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-gray-300 mb-1">Video Title / Concept</label>
+                <div class="flex space-x-2">
+                  <input type="text" id="hook-input-title" placeholder="e.g. क्या नासा ने एलियंस का रहस्य छुपाया?" class="flex-1 bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-violet-500">
+                  <button id="btn-generate-hooks" class="btn-primary text-xs px-3.5 whitespace-nowrap">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    <span>Generate Hooks</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Output Cards Container -->
+              <div id="hook-results-container" class="space-y-3 pt-1">
+                <!-- Hook Card 1: Curiosity Gap -->
+                <div class="p-3 bg-gray-900/80 rounded-xl border border-cyan-500/30 space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-cyan-400 flex items-center gap-1">
+                      <i data-lucide="help-circle" class="w-3 h-3"></i>
+                      <span>1. Curiosity Gap Hook (First 0-3 Seconds)</span>
+                    </span>
+                    <button class="btn-copy-hook text-[10px] text-gray-400 hover:text-white flex items-center gap-1" data-target="hook-curiosity-text">
+                      <i data-lucide="copy" class="w-3 h-3"></i>
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <p id="hook-curiosity-text" class="text-xs text-gray-200 font-medium leading-relaxed">
+                    क्या आपने कभी सोचा है कि अगर अंतरिक्ष का ये रहस्य सच हो गया, तो धरती का क्या होगा?
+                  </p>
+                  <p class="text-[10px] text-cyan-400/80 font-mono">Triggers: Open Loop • Stops Thumb Swipe</p>
+                </div>
+
+                <!-- Hook Card 2: Shocking Secret -->
+                <div class="p-3 bg-gray-900/80 rounded-xl border border-rose-500/30 space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-rose-400 flex items-center gap-1">
+                      <i data-lucide="flame" class="w-3 h-3"></i>
+                      <span>2. Shocking Secret Hook (Forbidden Mystery)</span>
+                    </span>
+                    <button class="btn-copy-hook text-[10px] text-gray-400 hover:text-white flex items-center gap-1" data-target="hook-shock-text">
+                      <i data-lucide="copy" class="w-3 h-3"></i>
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <p id="hook-shock-text" class="text-xs text-gray-200 font-medium leading-relaxed">
+                    नासा ने 40 साल तक इस एक भयानक रहस्य को दुनिया से छुपाकर रखा था!
+                  </p>
+                  <p class="text-[10px] text-rose-400/80 font-mono">Triggers: High Urgency • Injustice/Forbidden</p>
+                </div>
+
+                <!-- Hook Card 3: What-If Fear -->
+                <div class="p-3 bg-gray-900/80 rounded-xl border border-amber-500/30 space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+                      <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                      <span>3. What-If Scenario Hook (High-Stakes)</span>
+                    </span>
+                    <button class="btn-copy-hook text-[10px] text-gray-400 hover:text-white flex items-center gap-1" data-target="hook-whatif-text">
+                      <i data-lucide="copy" class="w-3 h-3"></i>
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <p id="hook-whatif-text" class="text-xs text-gray-200 font-medium leading-relaxed">
+                    कल्पना कीजिए कि कल सुबह आसमान से सूरज हमेशा के लिए गायब हो जाए!
+                  </p>
+                  <p class="text-[10px] text-amber-400/80 font-mono">Triggers: Visual Imagination • Existential Dread</p>
+                </div>
+
+                <!-- Optimized Title & Tags -->
+                <div class="p-3 bg-violet-950/20 rounded-xl border border-violet-500/30 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-violet-300">High-CTR Title & Tags</span>
+                    <button class="btn-copy-hook text-[10px] text-violet-300 hover:text-white flex items-center gap-1" data-target="hook-title-text">
+                      <i data-lucide="copy" class="w-3 h-3"></i>
+                      <span>Copy Title</span>
+                    </button>
+                  </div>
+                  <p id="hook-title-text" class="text-xs font-bold text-white">नासा का सबसे डरावना सच! 😱 #Shorts</p>
+                  <div id="hook-tags-container" class="flex flex-wrap gap-1.5 pt-1">
+                    <span class="px-2 py-0.5 rounded-md bg-gray-900 border border-gray-800 text-[10px] text-gray-300">#Shorts</span>
+                    <span class="px-2 py-0.5 rounded-md bg-gray-900 border border-gray-800 text-[10px] text-gray-300">#COSMOS</span>
+                    <span class="px-2 py-0.5 rounded-md bg-gray-900 border border-gray-800 text-[10px] text-gray-300">#HindiFacts</span>
+                    <span class="px-2 py-0.5 rounded-md bg-gray-900 border border-gray-800 text-[10px] text-gray-300">#SpaceMysteries</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instagram Reels Cross-Posting & External Traffic Accelerator -->
+        <div class="cosmos-card p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+              <div class="p-2 rounded-lg bg-pink-500/20 text-pink-400">
+                <i data-lucide="instagram" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-white">Instagram Reels Cross-Poster & External Traffic Generator</h3>
+                <p class="text-[11px] text-gray-400">YouTube's algorithm rewards outside traffic sessions. Cross-post every Short to Instagram to kickstart views.</p>
+              </div>
+            </div>
+            <button id="btn-generate-ig-bundle" class="btn-primary text-xs bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 hover:from-pink-500 hover:to-amber-400 border-none">
+              <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+              <span>Generate Instagram Bundle</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="space-y-3">
+              <div>
+                <label class="block font-semibold text-gray-300 mb-1">Target Short Topic / Title</label>
+                <input type="text" id="ig-input-title" placeholder="e.g. क्या सच में धरती के नीचे पाताल लोक है?" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-pink-500">
+              </div>
+
+              <div class="p-3 bg-gray-900/60 rounded-xl border border-gray-800 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-gray-300">Instagram Caption & Call to Action</span>
+                  <button id="btn-copy-ig-caption" class="text-[10px] text-pink-400 hover:text-pink-300 flex items-center gap-1">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                    <span>Copy Caption</span>
+                  </button>
+                </div>
+                <textarea id="ig-caption-text" rows="4" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-gray-200 text-xs focus:outline-none focus:border-pink-500 leading-relaxed font-sans" readonly>ब्रह्मांड का एक ऐसा रहस्य जो आपके होश उड़ा देगा! 🌌 क्या आपको इसके बारे में पता था? कमेंट में बताएं!
+
+पूरे वीडियो और रहस्यों के लिए हमारे YouTube चैनल 'COSMOS VIRAL' को सब्सक्राइब करें! 🔴 (Link in Bio)</textarea>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div class="p-3 bg-gray-900/60 rounded-xl border border-gray-800 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-gray-300">30 High-Reach Instagram Hashtags</span>
+                  <button id="btn-copy-ig-tags" class="text-[10px] text-pink-400 hover:text-pink-300 flex items-center gap-1">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                    <span>Copy All Tags</span>
+                  </button>
+                </div>
+                <textarea id="ig-tags-text" rows="4" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-cyan-300 text-[11px] font-mono focus:outline-none focus:border-pink-500 leading-relaxed" readonly>#spacefacts #hindifacts #mysteriousfacts #reelsindia #trendingreels #sciencefacts #universe #nasa #isro #didyouknow #factsinhindi #dailyfacts #viralreels #reelsviral #explorepage #cosmos</textarea>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div class="p-2.5 bg-gray-900/80 rounded-xl border border-gray-800 text-[11px]">
+                  <span class="text-gray-400 block mb-0.5">Recommended Audio:</span>
+                  <span id="ig-audio-style" class="font-bold text-white">Cinematic Dark Synth / Suspense</span>
+                </div>
+                <div class="p-2.5 bg-gray-900/80 rounded-xl border border-gray-800 text-[11px]">
+                  <span class="text-gray-400 block mb-0.5">Best Reel Upload Time:</span>
+                  <span id="ig-best-time" class="font-bold text-emerald-400">18:30 IST (Prime Hour)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monetization Milestone Accelerator (Roadmap to YPP) -->
+        <div class="cosmos-card p-5 space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+              <div class="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
+                <i data-lucide="trophy" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-white">Monetization Milestone Accelerator (YPP Blueprint)</h3>
+                <p class="text-[11px] text-gray-400">4-Phase algorithm roadmap to take COSMOS VIRAL to 1,000 Subscribers & 10M Views</p>
+              </div>
+            </div>
+            <div class="text-xs text-gray-400">
+              Target: <span class="text-emerald-400 font-bold">YouTube Partner Program (YPP)</span>
+            </div>
+          </div>
+
+          <!-- Progress Bars -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-3 bg-gray-900/60 rounded-xl border border-gray-800 space-y-1.5">
+              <div class="flex justify-between text-xs">
+                <span class="text-gray-400 font-medium">Subscribers Progress</span>
+                <span class="text-white font-bold"><span id="roadmap-current-subs">49</span> / 1,000 Subs</span>
+              </div>
+              <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                <div id="roadmap-subs-bar" class="bg-gradient-to-r from-violet-600 to-emerald-400 h-2.5 rounded-full" style="width: 4.9%"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-gray-500">
+                <span>Current: 49</span>
+                <span id="roadmap-subs-needed">951 to go (~10.5/day in 90 days)</span>
+              </div>
+            </div>
+
+            <div class="p-3 bg-gray-900/60 rounded-xl border border-gray-800 space-y-1.5">
+              <div class="flex justify-between text-xs">
+                <span class="text-gray-400 font-medium">Shorts Views Progress</span>
+                <span class="text-white font-bold"><span id="roadmap-current-views">11,340</span> / 10,000,000</span>
+              </div>
+              <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                <div id="roadmap-views-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-2.5 rounded-full" style="width: 0.11%"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-gray-500">
+                <span>Current: 11.3K</span>
+                <span id="roadmap-views-needed">9.98M to go</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Execution Phases -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+            <!-- Phase 1 -->
+            <div class="p-3.5 rounded-xl border border-amber-500/30 bg-amber-950/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold">PHASE 1</span>
+                <span class="text-[10px] text-amber-400 font-semibold">IN PROGRESS</span>
+              </div>
+              <h4 class="font-bold text-xs text-white">Break Zero-View Trap</h4>
+              <p class="text-[11px] text-gray-400 leading-relaxed">Stop Wi-Fi self-views, use AI Hook Laboratory for the first 0-3s, and post at 18:30 IST.</p>
+              <div class="pt-1 border-t border-gray-800 text-[10px] text-emerald-400 font-medium">Target: 500-2K views/Short</div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="p-3.5 rounded-xl border border-cyan-500/30 bg-cyan-950/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono font-bold">PHASE 2</span>
+                <span class="text-[10px] text-gray-400 font-semibold">NEXT</span>
+              </div>
+              <h4 class="font-bold text-xs text-white">Audience Momentum</h4>
+              <p class="text-[11px] text-gray-400 leading-relaxed">Cross-post to Instagram Reels, pin curiosity questions in comments, and maintain 4s visual pacing.</p>
+              <div class="pt-1 border-t border-gray-800 text-[10px] text-cyan-400 font-medium">Target: 500 Subs & 100K Views</div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="p-3.5 rounded-xl border border-violet-500/30 bg-violet-950/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-mono font-bold">PHASE 3</span>
+                <span class="text-[10px] text-gray-500 font-semibold">UPCOMING</span>
+              </div>
+              <h4 class="font-bold text-xs text-white">Algorithmic Outlier</h4>
+              <p class="text-[11px] text-gray-400 leading-relaxed">Double down on Space & Earth mysteries. High-contrast thumbnail badge drives channel CTR.</p>
+              <div class="pt-1 border-t border-gray-800 text-[10px] text-violet-400 font-medium">Target: 1-3 Videos at 500K+ Views</div>
+            </div>
+
+            <!-- Phase 4 -->
+            <div class="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-950/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">PHASE 4</span>
+                <span class="text-[10px] text-emerald-400 font-semibold">MONETIZE</span>
+              </div>
+              <h4 class="font-bold text-xs text-white">YPP Partner Program</h4>
+              <p class="text-[11px] text-gray-400 leading-relaxed">Apply for YouTube monetization. Earn revenue share from Shorts Ad pool and brand sponsors.</p>
+              <div class="pt-1 border-t border-gray-800 text-[10px] text-emerald-400 font-medium">Goal: 1,000 Subs + 10M Views</div>
+            </div>
+          </div>
+        </div>
+
       </section>
 
     </main>

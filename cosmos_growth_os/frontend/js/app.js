@@ -43,9 +43,14 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchMonetization();
   fetchBestPostingTimes();
   fetchCalendarEvents();
+  fetchGrowthDiagnostics();
+  fetchMilestoneRoadmap();
 
   // Setup Event Listeners
   setupEventListeners();
+  setupGrowthEventListeners();
+  setupWinningTopicListeners();
+  setupTabVisibilityAnimation();
 
   // ----------------------------------------------------
   // NAVIGATION & VIEWS
@@ -100,6 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
       window.chartCategories.resize();
     } else if (viewName === "monetization" && window.chartPostingHeatmap) {
       window.chartPostingHeatmap.resize();
+    } else if (viewName === "growth") {
+      fetchGrowthDiagnostics();
+      fetchMilestoneRoadmap();
     }
   }
 
@@ -515,7 +523,8 @@ document.addEventListener("DOMContentLoaded", () => {
         language: lang,
         prompt_template_id: tplId || null,
         custom_instructions: customInst || "",
-        topic: activeStudioMode === "curated" ? document.getElementById("studio-curated-topic")?.value : ""
+        topic: activeStudioMode === "curated" ? document.getElementById("studio-curated-topic")?.value : "",
+        model: document.getElementById("studio-model-selector")?.value || "qwen2.5:3b"
       };
 
       try {
@@ -555,6 +564,102 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ----------------------------------------------------
+  // 2.6K FORMULA WINNING TOPICS CONTROLLER
+  // ----------------------------------------------------
+  function setupWinningTopicListeners() {
+    // 2.6K Formula Topic Pills
+    document.querySelectorAll(".btn-topic-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        const topic = pill.getAttribute("data-topic");
+        const promptInput = document.getElementById("studio-story-prompt");
+        if (promptInput) promptInput.value = topic;
+
+        // Select WWII category
+        const catSelect = document.getElementById("studio-story-category");
+        if (catSelect) {
+          for (let i = 0; i < catSelect.options.length; i++) {
+            if (catSelect.options[i].value.includes("WWII") || catSelect.options[i].value.includes("Warfare")) {
+              catSelect.selectedIndex = i;
+              break;
+            }
+          }
+        }
+
+        // Select WWII template
+        const tplSelect = document.getElementById("studio-prompt-template");
+        if (tplSelect) {
+          for (let i = 0; i < tplSelect.options.length; i++) {
+            if (tplSelect.options[i].value === "tpl_wwii_extreme_inventions" || tplSelect.options[i].text.includes("WWII")) {
+              tplSelect.selectedIndex = i;
+              break;
+            }
+          }
+        }
+
+        // Highlight active pill
+        document.querySelectorAll(".btn-topic-pill").forEach(p => {
+          p.classList.remove("border-amber-500", "bg-amber-500/20", "text-amber-200");
+          p.classList.add("border-gray-800", "text-gray-300");
+        });
+        pill.classList.remove("border-gray-800", "text-gray-300");
+        pill.classList.add("border-amber-500", "bg-amber-500/20", "text-amber-200");
+
+        showToast(`Loaded topic: "${topic.slice(0, 32)}..."`, "info");
+      });
+    });
+
+    // Suggest Fresh WWII Hack Topic
+    const btnSurprise = document.getElementById("btn-surprise-wwii-topic");
+    if (btnSurprise) {
+      btnSurprise.addEventListener("click", async () => {
+        btnSurprise.disabled = true;
+        btnSurprise.innerHTML = `<span class="animate-spin inline-block mr-1">🎲</span> Brainstorming...`;
+
+        try {
+          const res = await fetch("/api/studio/suggest_topic", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ category: "WWII & Warfare Extreme Inventions (2.6K Formula)" })
+          });
+          const data = await res.json();
+          if (data && data.topic) {
+            const promptInput = document.getElementById("studio-story-prompt");
+            if (promptInput) promptInput.value = data.topic;
+
+            const catSelect = document.getElementById("studio-story-category");
+            if (catSelect) {
+              for (let i = 0; i < catSelect.options.length; i++) {
+                if (catSelect.options[i].value.includes("WWII") || catSelect.options[i].value.includes("Warfare")) {
+                  catSelect.selectedIndex = i;
+                  break;
+                }
+              }
+            }
+
+            const tplSelect = document.getElementById("studio-prompt-template");
+            if (tplSelect) {
+              for (let i = 0; i < tplSelect.options.length; i++) {
+                if (tplSelect.options[i].value === "tpl_wwii_extreme_inventions" || tplSelect.options[i].text.includes("WWII")) {
+                  tplSelect.selectedIndex = i;
+                  break;
+                }
+              }
+            }
+
+            showToast(`Generated: "${data.topic.slice(0, 35)}..."`, "success");
+          }
+        } catch (e) {
+          showToast("Topic suggestion failed: " + e.message, "danger");
+        } finally {
+          btnSurprise.disabled = false;
+          btnSurprise.innerHTML = `<i data-lucide="sparkles" class="w-3 h-3"></i><span>🎲 Suggest Fresh Topic</span>`;
+          if (window.lucide) lucide.createIcons();
+        }
+      });
+    }
+  }
+
   // Preview Prompt Button Handler
   const btnPreviewPrompt = document.getElementById("btn-preview-prompt");
   if (btnPreviewPrompt) {
@@ -577,7 +682,8 @@ document.addEventListener("DOMContentLoaded", () => {
         language: lang,
         prompt_template_id: tplId || null,
         custom_instructions: customInst || "",
-        topic: activeStudioMode === "curated" ? document.getElementById("studio-curated-topic")?.value : ""
+        topic: activeStudioMode === "curated" ? document.getElementById("studio-curated-topic")?.value : "",
+        model: document.getElementById("studio-model-selector")?.value || "qwen2.5:3b"
       };
 
       try {
@@ -1796,6 +1902,354 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+  }
+
+  // ----------------------------------------------------
+  // ALGORITHM & GROWTH DOCTOR CONTROLLER
+  // ----------------------------------------------------
+  async function fetchGrowthDiagnostics() {
+    try {
+      const res = await fetch("/api/growth/diagnostics");
+      if (!res.ok) return;
+      const data = await res.json();
+
+      const stuckCountEl = document.getElementById("growth-stuck-count");
+      const stuckPctEl = document.getElementById("growth-stuck-pct");
+      if (stuckCountEl) stuckCountEl.textContent = data.stuck_videos_count || 0;
+      if (stuckPctEl) stuckPctEl.textContent = `${data.stuck_percentage || 0}% of uploads`;
+
+      const container = document.getElementById("stuck-videos-container");
+      if (!container) return;
+
+      if (!data.zero_view_videos || data.zero_view_videos.length === 0) {
+        container.innerHTML = `<div class="p-4 text-center text-emerald-400 text-xs">🎉 No zero-view videos detected! All uploads have broken through.</div>`;
+        return;
+      }
+
+      container.innerHTML = data.zero_view_videos.map(v => {
+        const title = v.title || "Untitled";
+        const thumb = v.thumbnail_url || "/static/images/thumb_placeholder.png";
+        const views = v.view_count || 0;
+        return `
+          <div class="p-2.5 rounded-xl bg-gray-900/80 border border-gray-800 flex items-center justify-between gap-3 hover:border-gray-700 transition">
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <img src="${thumb}" alt="thumb" class="w-9 h-12 rounded object-cover bg-gray-950 border border-gray-800 flex-shrink-0">
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-white truncate max-w-[200px]" title="${title}">${title}</p>
+                <div class="flex items-center space-x-2 text-[10px] text-gray-400 mt-0.5">
+                  <span class="text-rose-400 font-bold">${views} Views</span>
+                  <span>•</span>
+                  <span class="text-amber-400">Swiped Early</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn-revive-hook btn-secondary text-[11px] px-2.5 py-1.5 flex-shrink-0 text-amber-300 hover:text-white border-amber-500/30 hover:border-amber-500" data-title="${encodeURIComponent(title)}">
+              ⚡ Revive Hook
+            </button>
+          </div>
+        `;
+      }).join("");
+
+      // Bind Revive Hook buttons
+      container.querySelectorAll(".btn-revive-hook").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const title = decodeURIComponent(btn.getAttribute("data-title"));
+          const hookInput = document.getElementById("hook-input-title");
+          const igInput = document.getElementById("ig-input-title");
+          if (hookInput) hookInput.value = title;
+          if (igInput) igInput.value = title;
+          generateHooks(title);
+          showToast(`Analyzing hook for: "${title.slice(0, 25)}..."`, "info");
+        });
+      });
+
+    } catch (e) {
+      console.warn("Could not fetch growth diagnostics:", e);
+    }
+  }
+
+  async function generateHooks(title) {
+    if (!title) return;
+    const btn = document.getElementById("btn-generate-hooks");
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin inline-block mr-1">⚡</span> Generating...`;
+    }
+
+    try {
+      const res = await fetch("/api/growth/revive_hook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, language: "hindi" })
+      });
+      const data = await res.json();
+
+      const curiosityEl = document.getElementById("hook-curiosity-text");
+      const shockEl = document.getElementById("hook-shock-text");
+      const whatifEl = document.getElementById("hook-whatif-text");
+      const titleEl = document.getElementById("hook-title-text");
+      const tagsContainer = document.getElementById("hook-tags-container");
+
+      if (curiosityEl) curiosityEl.textContent = data.curiosity_hook || "";
+      if (shockEl) shockEl.textContent = data.shock_hook || "";
+      if (whatifEl) whatifEl.textContent = data.what_if_hook || "";
+      if (titleEl) titleEl.textContent = data.optimized_title || title;
+
+      if (tagsContainer && data.tags) {
+        tagsContainer.innerHTML = data.tags.map(t => `
+          <span class="px-2 py-0.5 rounded-md bg-gray-900 border border-gray-800 text-[10px] text-cyan-300 font-mono">${t}</span>
+        `).join("");
+      }
+
+      showToast("Generated 3 viral hooks with Qwen 7B!", "success");
+    } catch (e) {
+      showToast("Hook generation failed: " + e.message, "danger");
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="zap" class="w-3.5 h-3.5"></i><span>Generate Hooks</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+  }
+
+  async function generateInstagramBundle(title) {
+    if (!title) return;
+    const btn = document.getElementById("btn-generate-ig-bundle");
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin inline-block mr-1">🔄</span> Generating...`;
+    }
+
+    try {
+      const res = await fetch("/api/growth/instagram_bundle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, category: "Space & Universe", language: "hindi" })
+      });
+      const data = await res.json();
+
+      const capEl = document.getElementById("ig-caption-text");
+      const tagsEl = document.getElementById("ig-tags-text");
+      const audioEl = document.getElementById("ig-audio-style");
+      const timeEl = document.getElementById("ig-best-time");
+
+      if (capEl) capEl.value = `${data.caption}\n\n${data.cta}`;
+      if (tagsEl) tagsEl.value = data.hashtags || "";
+      if (audioEl) audioEl.textContent = data.audio_recommendation || "Cinematic Dark Synth";
+      if (timeEl) timeEl.textContent = data.best_time_to_post || "18:30 IST";
+
+      showToast("Instagram Reels bundle generated!", "success");
+    } catch (e) {
+      showToast("Instagram bundle generation failed: " + e.message, "danger");
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="share-2" class="w-3.5 h-3.5"></i><span>Generate Instagram Bundle</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+  }
+
+  async function fetchMilestoneRoadmap() {
+    try {
+      const res = await fetch("/api/growth/milestone_roadmap");
+      if (!res.ok) return;
+      const data = await res.json();
+
+      const subsCard = document.getElementById("growth-roadmap-subs");
+      const viewsCard = document.getElementById("growth-roadmap-views");
+      if (subsCard) subsCard.textContent = data.current_subs || 49;
+      if (viewsCard) viewsCard.textContent = `${(data.current_views || 0).toLocaleString()} / 10M Views`;
+
+      const curSubsEl = document.getElementById("roadmap-current-subs");
+      const subsBarEl = document.getElementById("roadmap-subs-bar");
+      const subsNeededEl = document.getElementById("roadmap-subs-needed");
+
+      if (curSubsEl) curSubsEl.textContent = data.current_subs || 49;
+      if (subsBarEl) {
+        const pct = Math.min(100, Math.max(1, ((data.current_subs || 49) / 1000) * 100));
+        subsBarEl.style.width = `${pct}%`;
+      }
+      if (subsNeededEl) subsNeededEl.textContent = `${data.remaining_subs} to go (~${data.daily_subs_needed}/day in 90d)`;
+
+      const curViewsEl = document.getElementById("roadmap-current-views");
+      const viewsBarEl = document.getElementById("roadmap-views-bar");
+      const viewsNeededEl = document.getElementById("roadmap-views-needed");
+
+      if (curViewsEl) curViewsEl.textContent = (data.current_views || 0).toLocaleString();
+      if (viewsBarEl) {
+        const pct = Math.min(100, Math.max(0.1, ((data.current_views || 0) / 10000000) * 100));
+        viewsBarEl.style.width = `${pct}%`;
+      }
+      if (viewsNeededEl) viewsNeededEl.textContent = `${(data.remaining_views || 0).toLocaleString()} to go (~${(data.daily_views_needed || 0).toLocaleString()}/day)`;
+
+    } catch (e) {
+      console.warn("Could not fetch roadmap:", e);
+    }
+  }
+
+  function setupGrowthEventListeners() {
+    const scanBtn = document.getElementById("btn-scan-growth");
+    if (scanBtn) {
+      scanBtn.addEventListener("click", () => {
+        fetchGrowthDiagnostics();
+        fetchMilestoneRoadmap();
+        showToast("Algorithm scan completed!", "success");
+      });
+    }
+
+    const genHooksBtn = document.getElementById("btn-generate-hooks");
+    if (genHooksBtn) {
+      genHooksBtn.addEventListener("click", () => {
+        const title = document.getElementById("hook-input-title")?.value?.trim();
+        if (!title) {
+          showToast("Please enter a video topic or title.", "warning");
+          return;
+        }
+        generateHooks(title);
+      });
+    }
+
+    const genIgBtn = document.getElementById("btn-generate-ig-bundle");
+    if (genIgBtn) {
+      genIgBtn.addEventListener("click", () => {
+        const title = document.getElementById("ig-input-title")?.value?.trim() || document.getElementById("hook-input-title")?.value?.trim();
+        if (!title) {
+          showToast("Please enter a video title for the Instagram package.", "warning");
+          return;
+        }
+        generateInstagramBundle(title);
+      });
+    }
+
+    // Hook copy buttons
+    document.querySelectorAll(".btn-copy-hook").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+        const el = document.getElementById(targetId);
+        if (el) {
+          navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+            showToast("Copied to clipboard!", "success");
+          });
+        }
+      });
+    });
+
+    const copyIgCapBtn = document.getElementById("btn-copy-ig-caption");
+    if (copyIgCapBtn) {
+      copyIgCapBtn.addEventListener("click", () => {
+        const el = document.getElementById("ig-caption-text");
+        if (el) {
+          navigator.clipboard.writeText(el.value).then(() => {
+            showToast("Instagram caption copied!", "success");
+          });
+        }
+      });
+    }
+
+    const copyIgTagsBtn = document.getElementById("btn-copy-ig-tags");
+    if (copyIgTagsBtn) {
+      copyIgTagsBtn.addEventListener("click", () => {
+        const el = document.getElementById("ig-tags-text");
+        if (el) {
+          navigator.clipboard.writeText(el.value).then(() => {
+            showToast("Instagram hashtags copied!", "success");
+          });
+        }
+      });
+    }
+  }
+
+  // ----------------------------------------------------
+  // DYNAMIC TAB LOGO & INACTIVE TAB RE-ENGAGEMENT ANIMATION
+  // ----------------------------------------------------
+  function setupTabVisibilityAnimation() {
+    const originalTitle = "COSMOS GROWTH OS — YouTube Command Center";
+    const normalFavicon = "/static/images/favicon.svg";
+    const alertFavicon = "/static/images/favicon-alert.svg";
+    const faviconEl = document.getElementById("app-favicon");
+
+    let normalFaviconUri = normalFavicon;
+    let alertFaviconUri = alertFavicon;
+
+    // Preload both SVG favicons as memory Data URIs once (ZERO network requests & ZERO glitch during tab switching)
+    Promise.all([
+      fetch(normalFavicon).then(r => r.text()).catch(() => null),
+      fetch(alertFavicon).then(r => r.text()).catch(() => null)
+    ]).then(([s1, s2]) => {
+      if (s1) normalFaviconUri = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s1);
+      if (s2) alertFaviconUri = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s2);
+    });
+
+    const repeatingAlerts = [
+      "🪐 (1) Hey! Come back to COSMOS...",
+      "⚡ Your YouTube Shorts need you!",
+      "🚀 Reach 1,000 Subs & Monetize!"
+    ];
+
+    let tabAnimInterval = null;
+    let titleIndex = 0;
+    let isAlertIcon = false;
+    let restoreTimeout = null;
+
+    function startInactiveAnimation() {
+      if (tabAnimInterval) clearInterval(tabAnimInterval);
+      if (restoreTimeout) clearTimeout(restoreTimeout);
+
+      titleIndex = 0;
+      isAlertIcon = false;
+
+      tabAnimInterval = setInterval(() => {
+        // 1. Cycle repeating dynamic titles smoothly
+        document.title = repeatingAlerts[titleIndex % repeatingAlerts.length];
+        titleIndex++;
+
+        // 2. Animate favicon directly from memory without network hits
+        if (faviconEl) {
+          isAlertIcon = !isAlertIcon;
+          faviconEl.href = isAlertIcon ? alertFaviconUri : normalFaviconUri;
+        }
+      }, 1400);
+    }
+
+    function stopInactiveAnimation() {
+      if (tabAnimInterval) {
+        clearInterval(tabAnimInterval);
+        tabAnimInterval = null;
+      }
+
+      // Restore normal favicon immediately from memory
+      if (faviconEl) {
+        faviconEl.href = normalFaviconUri;
+      }
+
+      // Friendly welcoming title, then back to original
+      document.title = "✨ Welcome back, Creator!";
+      restoreTimeout = setTimeout(() => {
+        document.title = originalTitle;
+      }, 1400);
+    }
+
+    // Handle Page Visibility API (Chrome/Edge/Firefox)
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        startInactiveAnimation();
+      } else {
+        stopInactiveAnimation();
+      }
+    });
+
+    // Fallback for Window Blur / Focus
+    window.addEventListener("blur", () => {
+      if (document.hidden) {
+        startInactiveAnimation();
+      }
+    });
+
+    window.addEventListener("focus", () => {
+      stopInactiveAnimation();
+    });
   }
 
   // Toast Notification System

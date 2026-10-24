@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 
 # Ensure root paths are accessible
@@ -21,7 +22,7 @@ if str(ROOT_DIR / "MoneyPrinterTurbo") not in sys.path:
 
 from backend.config import FRONTEND_DIR, HOST, PORT, TOKEN_FILE
 from backend.database import init_db
-from backend.routers import health, youtube, studio, video, calendar, analytics, categories
+from backend.routers import health, youtube, studio, video, calendar, analytics, categories, growth
 
 logging.basicConfig(
     level=logging.INFO,
@@ -44,6 +45,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# GZip compression for ultra-fast asset & payload transfers
+app.add_middleware(GZipMiddleware, minimum_size=800)
+
+# Static file caching middleware (zero-latency browser loading)
+@app.middleware("http")
+async def add_cache_headers(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/static"):
+        response.headers["Cache-Control"] = "public, max-age=86400"
+    return response
+
 # Include API Routers
 app.include_router(health.router)
 app.include_router(youtube.router)
@@ -52,6 +64,7 @@ app.include_router(categories.router)
 app.include_router(video.router)
 app.include_router(calendar.router)
 app.include_router(analytics.router)
+app.include_router(growth.router)
 
 # Mount frontend static files
 app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
@@ -73,6 +86,11 @@ def startup_event():
 def serve_index():
     index_file = FRONTEND_DIR / "index.html"
     return FileResponse(str(index_file))
+
+@app.get("/favicon.ico")
+def serve_favicon():
+    fav = FRONTEND_DIR / "images" / "favicon.svg"
+    return FileResponse(str(fav), media_type="image/svg+xml")
 
 if __name__ == "__main__":
     import uvicorn
