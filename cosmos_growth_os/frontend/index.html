@@ -140,6 +140,17 @@
       </div>
 
       <div class="flex items-center space-x-3">
+        <!-- Live Pipeline Notification Hub -->
+        <button id="header-pipeline-tracker" class="flex items-center space-x-2 bg-gray-900/90 border border-gray-800 hover:border-violet-500/50 px-3 py-1.5 rounded-full text-xs transition cursor-pointer group shadow-sm" title="Click to view full video pipeline progress">
+          <div class="relative flex items-center justify-center">
+            <span id="pipeline-status-pulse" class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+            <span id="pipeline-status-ping" class="hidden absolute w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping opacity-75"></span>
+          </div>
+          <i data-lucide="activity" class="w-3.5 h-3.5 text-gray-400 group-hover:text-violet-400 transition" id="pipeline-status-icon"></i>
+          <span class="font-medium text-gray-200" id="pipeline-status-label">Pipeline Ready</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-gray-800 text-gray-300 border border-gray-700" id="pipeline-status-pct">100%</span>
+        </button>
+
         <!-- Live YouTube Sync Button -->
         <button id="btn-sync-yt" class="btn-secondary text-xs px-3 py-1.5">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="sync-icon"></i>
@@ -1596,6 +1607,187 @@
           <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
           <span id="btn-confirm-schedule-label">Confirm & Schedule Video</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+    <!-- Video Pipeline & Job Inspector Modal -->
+  <div id="job-detail-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-50 hidden overflow-y-auto">
+    <div class="cosmos-card max-w-2xl w-full p-6 space-y-5 my-8 max-h-[92vh] flex flex-col justify-between">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="p-2.5 rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20" id="job-modal-icon-container">
+            <i data-lucide="film" class="w-5 h-5" id="job-modal-icon"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="font-bold text-base text-white" id="job-modal-title">Short Render Lifecycle</h3>
+              <span id="job-modal-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase bg-violet-500/10 text-violet-400 border border-violet-500/20">PROCESSING</span>
+            </div>
+            <p class="text-xs text-gray-400 font-mono mt-0.5" id="job-modal-id">cosmos_0000000000</p>
+          </div>
+        </div>
+        <button id="btn-close-job-modal" class="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="space-y-4 overflow-y-auto pr-1">
+        <!-- Progress Bar Card -->
+        <div class="p-4 rounded-xl bg-gray-900/90 border border-gray-800 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-gray-300 font-medium flex items-center gap-2">
+              <i data-lucide="cpu" class="w-4 h-4 text-violet-400"></i>
+              <span id="job-modal-step-text">Synthesizing audio & calculating pacing...</span>
+            </span>
+            <span class="font-mono font-bold text-violet-400 text-sm" id="job-modal-pct-text">35%</span>
+          </div>
+          <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+            <div id="job-modal-progress-bar" class="bg-gradient-to-r from-violet-500 via-indigo-500 to-emerald-400 h-2.5 rounded-full transition-all duration-500 shadow-sm" style="width: 35%"></div>
+          </div>
+        </div>
+
+        <!-- 7-Step Visual Pipeline Tracker -->
+        <div class="rounded-xl border border-gray-800 bg-gray-950/60 p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-gray-800/80">
+            <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+              <i data-lucide="git-commit" class="w-4 h-4 text-cyan-400"></i>
+              Full Pipeline Stage Tracker (Prompt → Scheduling)
+            </span>
+            <span class="text-[10px] text-gray-500 font-mono">Autonomous AI Flow</span>
+          </div>
+
+          <div class="space-y-2.5 text-xs" id="job-pipeline-steps-list">
+            <!-- Step 1: Prompt & Concept -->
+            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800/80 transition" id="pipe-step-1">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-400 font-mono" id="pipe-step-1-num">1</span>
+                <div>
+                  <p class="font-medium text-white text-xs">Prompt & Concept Ingestion</p>
+                  <p class="text-[10px] text-gray-400">Viral hook generation & story premise</p>
+                </div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-400" id="pipe-step-1-status">Pending</span>
+            </div>
+
+            <!-- Step 2: Script & Pacing -->
+            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800/80 transition" id="pipe-step-2">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-400 font-mono" id="pipe-step-2-num">2</span>
+                <div>
+                  <p class="font-medium text-white text-xs">Hindi Script & Segmentation</p>
+                  <p class="text-[10px] text-gray-400">High-retention phrasing optimized for Shorts</p>
+                </div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-400" id="pipe-step-2-status">Pending</span>
+            </div>
+
+            <!-- Step 3: EdgeTTS Audio -->
+            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800/80 transition" id="pipe-step-3">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-400 font-mono" id="pipe-step-3-num">3</span>
+                <div>
+                  <p class="font-medium text-white text-xs">EdgeTTS Natural Voiceover</p>
+                  <p class="text-[10px] text-gray-400">MadhurNeural 24kHz audio + millisecond timestamps</p>
+                </div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-400" id="pipe-step-3-status">Pending</span>
+            </div>
+
+            <!-- Step 4: HD Visual Media -->
+            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800/80 transition" id="pipe-step-4">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-400 font-mono" id="pipe-step-4-num">4</span>
+                <div>
+                  <p class="font-medium text-white text-xs">HD Visual Sourcing & Pexels B-Roll</p>
+                  <p class="text-[10px] text-gray-400">Semantic visual matching per narrative sentence</p>
+                </div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-400" id="pipe-step-4-status">Pending</span>
+            </div>
+
+            <!-- Step 5: Subtitle Animation -->
+            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800/80 transition" id="pipe-step-5">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-400 font-mono" id="pipe-step-5-num">5</span>
+                <div>
+                  <p class="font-medium text-white text-xs">Dynamic Subtitle Animation (.ass)</p>
+                  <p class="text-[10px] text-gray-400">Category color highlighting & safe vertical positioning</p>
+                </div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-400" id="pipe-step-5-status">Pending</span>
+            </div>
+
+            <!-- Step 6: FFmpeg 1080x1920 MP4 -->
+            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800/80 transition" id="pipe-step-6">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-400 font-mono" id="pipe-step-6-num">6</span>
+                <div>
+                  <p class="font-medium text-white text-xs">FFmpeg 1080x1920 MP4 Video Encoding</p>
+                  <p class="text-[10px] text-gray-400">Hardware-accelerated rendering & audio leveling</p>
+                </div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-400" id="pipe-step-6-status">Pending</span>
+            </div>
+
+            <!-- Step 7: Viral Thumbnail & YouTube Scheduling -->
+            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800/80 transition" id="pipe-step-7">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-400 font-mono" id="pipe-step-7-num">7</span>
+                <div>
+                  <p class="font-medium text-white text-xs">Viral Thumbnail & YouTube Scheduling</p>
+                  <p class="text-[10px] text-gray-400">High-CTR thumbnail extraction & safe release schedule</p>
+                </div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-400" id="pipe-step-7-status">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interrupted / Error Diagnostics Box -->
+        <div id="job-modal-error-box" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2 text-xs">
+          <div class="flex items-center space-x-2 text-amber-300 font-bold">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+            <span id="job-modal-error-title">Task Interrupted During Execution</span>
+          </div>
+          <p class="text-amber-200/80 text-[11px] leading-relaxed" id="job-modal-error-desc">
+            This job stopped before finalizing (e.g. server restart or network timeout). Click "Retry Render Now" below to immediately resume and complete the pipeline without re-entering parameters.
+          </p>
+        </div>
+
+        <!-- Video Preview Container (When available) -->
+        <div id="job-modal-video-box" class="hidden space-y-2">
+          <label class="text-xs font-semibold text-gray-300">Generated Video Preview</label>
+          <div class="aspect-[9/16] max-h-72 bg-black rounded-xl overflow-hidden border border-gray-800 mx-auto flex items-center justify-center">
+            <video id="job-modal-video-player" class="w-full h-full object-contain" controls></video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer Action Buttons -->
+      <div class="flex items-center justify-between border-t border-gray-800 pt-4 mt-2">
+        <div class="flex items-center space-x-2">
+          <button id="btn-delete-job" class="btn-secondary text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/20">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>Dismiss Task</span>
+          </button>
+        </div>
+        <div class="flex items-center space-x-2" id="job-modal-action-buttons">
+          <button id="btn-retry-job" class="btn-primary text-xs bg-amber-600 hover:bg-amber-500">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Retry Render Now</span>
+          </button>
+          <button id="btn-job-load-preview" class="btn-secondary text-xs hidden">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+            <span>Open in Studio</span>
+          </button>
+          <button id="btn-job-schedule" class="btn-primary text-xs hidden">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>Schedule Video</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

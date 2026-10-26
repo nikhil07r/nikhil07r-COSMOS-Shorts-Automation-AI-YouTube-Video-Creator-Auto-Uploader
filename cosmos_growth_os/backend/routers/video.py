@@ -35,19 +35,21 @@ class StartVideoRequest(BaseModel):
 
 def run_pipeline_thread(job_id: str, topic_data: Dict[str, Any], theme_color: Optional[str], subtitle_pos: float, preferred_model: Optional[str]):
     try:
-        update_job(job_id, status="processing", progress_pct=15, current_step="Initializing AI content & speech")
+        def on_progress(pct: int, step_desc: str):
+            update_job(job_id, status="processing", progress_pct=pct, current_step=step_desc)
+
+        on_progress(15, "Initializing AI content & story directives")
         
         from cosmos_orchestrator import run_cosmos_short_pipeline
         
-        update_job(job_id, progress_pct=35, current_step="Synthesizing audio & calculating pacing")
-        
-        # Execute pipeline
+        # Execute pipeline with live progress tracking across all sub-steps
         package = run_cosmos_short_pipeline(
             custom_topic=topic_data,
             auto_upload=False, # strictly false for safety
             custom_position=subtitle_pos,
             theme_color_override=theme_color,
-            preferred_model=preferred_model
+            preferred_model=preferred_model,
+            progress_callback=on_progress
         )
         
         video_path = package.get("files", {}).get("video", "")
@@ -58,7 +60,7 @@ def run_pipeline_thread(job_id: str, topic_data: Dict[str, Any], theme_color: Op
             job_id,
             status="completed",
             progress_pct=100,
-            current_step="Video & thumbnail ready for review",
+            current_step="Short & thumbnail ready for review / scheduling",
             video_path=video_path,
             thumbnail_path=thumb_path,
             output_dir=output_dir
@@ -76,7 +78,6 @@ def run_pipeline_thread(job_id: str, topic_data: Dict[str, Any], theme_color: Op
 @router.post("/start")
 def start_video_generation(req: StartVideoRequest, background_tasks: BackgroundTasks):
     job_id = f"cosmos_{uuid.uuid4().hex[:10]}"
-    create_job(job_id, req.draft_id)
     
     # Auto-resolve category theme if not explicitly provided
     theme_color = req.theme_color
@@ -107,6 +108,8 @@ def start_video_generation(req: StartVideoRequest, background_tasks: BackgroundT
         "topic": req.title
     }
 
+    create_job(job_id, req.draft_id, params=topic_data)
+
     # Start in daemon thread so it continues smoothly
     t = threading.Thread(
         target=run_pipeline_thread,
@@ -120,6 +123,67 @@ def start_video_generation(req: StartVideoRequest, background_tasks: BackgroundT
         "job_id": job_id,
         "message": "Video generation pipeline launched in background."
     }
+
+@router.get("/active")
+def get_active_pipeline_status():
+    jobs = get_jobs(limit=15)
+    active = next((j for j in jobs if j.get("status") in ["processing", "queued"]), None)
+    latest_completed = next((j for j in jobs if j.get("status") == "completed"), None)
+    return {
+        "active_job": active,
+        "latest_completed": latest_completed,
+        "total_jobs": len(jobs)
+    }
+
+@router.post("/retry/{job_id}")
+def retry_failed_job(job_id: str):
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    params_data = None
+    if job.get("params_json"):
+        try:
+            params_data = json.loads(job["params_json"])
+        except Exception:
+            pass
+
+    if not params_data:
+        from backend.database import get_drafts
+        drafts = get_drafts(limit=5)
+        draft = next((d for d in drafts if d.get("id") == job.get("draft_id")), None) if job.get("draft_id") else None
+        params_data = {
+            "id": job.get("draft_id") or f"retry_{job_id[-6:]}",
+            "title": draft.get("title") if draft else "COSMOS Short",
+            "category": draft.get("category") if draft else "Space & Universe",
+            "script": draft.get("hindi_script") if draft else "",
+            "keywords": draft.get("keywords") if draft else [],
+            "language": "hindi",
+            "mode": "story"
+        }
+
+    update_job(
+        job_id,
+        status="processing",
+        progress_pct=10,
+        current_step="Retrying render pipeline...",
+        error_message=None
+    )
+
+    t = threading.Thread(
+        target=run_pipeline_thread,
+        args=(job_id, params_data, None, 76.0, "qwen2.5:3b"),
+        daemon=True
+    )
+    t.start()
+
+    return {"status": "retrying", "job_id": job_id, "message": "Job retry launched."}
+
+@router.delete("/job/{job_id}")
+def dismiss_job(job_id: str):
+    from backend.database import delete_job
+    delete_job(job_id)
+    return {"status": "deleted", "job_id": job_id}
 
 @router.get("/jobs")
 def list_jobs(limit: int = 25):

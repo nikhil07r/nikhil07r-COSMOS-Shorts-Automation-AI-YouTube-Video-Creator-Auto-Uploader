@@ -123,7 +123,8 @@ def run_cosmos_short_pipeline(
     subtitle_position: str = "custom",
     custom_position: float = 76.0,
     theme_color_override: Optional[str] = None,
-    preferred_model: Optional[str] = None
+    preferred_model: Optional[str] = None,
+    progress_callback: Optional[Any] = None
 ) -> Dict[str, Any]:
     """
     Executes the complete COSMOS Shorts creation pipeline:
@@ -138,6 +139,8 @@ def run_cosmos_short_pipeline(
     print(f"==================================================")
 
     # 1. Select Topic
+    if progress_callback:
+        progress_callback(15, "Initializing topic & category settings")
     topic = custom_topic if custom_topic else get_next_topic()
     category = topic.get("category", "General")
     theme = resolve_theme(category, theme_color_override)
@@ -147,6 +150,8 @@ def run_cosmos_short_pipeline(
     print(f"         Caption Position: {subtitle_position} (Y: {custom_position}%)")
 
     # 2. Generate Content with Local Ollama
+    if progress_callback:
+        progress_callback(30, f"Generating script with local AI ({preferred_model or 'Qwen'})...")
     print(f"[Step 2] Processing Story/Script with Ollama (Model: {preferred_model or 'default'})...")
     content = cosmos_generator.generate_cosmos_content(topic, preferred_model=preferred_model)
     print(f"  Title: {content.get('title')}")
@@ -163,6 +168,8 @@ def run_cosmos_short_pipeline(
     print(f"  Pacing: Est Audio={est_duration:.1f}s | Keywords={len(keywords)} | Clip Duration={optimal_clip_duration}s")
 
     # 3. Create Video with MoneyPrinterTurbo
+    if progress_callback:
+        progress_callback(50, "Synthesizing voiceover & downloading HD video clips...")
     print(f"[Step 3] Rendering Video via MoneyPrinterTurbo Pipeline...")
     task_id = str(uuid.uuid4())
     params = VideoParams(
@@ -194,6 +201,8 @@ def run_cosmos_short_pipeline(
         video_count=1
     )
 
+    if progress_callback:
+        progress_callback(70, "Assembling 1080x1920 MP4 & dynamic animated subtitles...")
     result = mpt_task.start(task_id, params, stop_at="video")
     if not result or not result.get("videos"):
         raise RuntimeError("MoneyPrinterTurbo video generation failed to produce output.")
@@ -204,6 +213,8 @@ def run_cosmos_short_pipeline(
     print(f"  Video rendered successfully: {final_video_path}")
 
     # 4. Extract Clean Thumbnail Frame & Generate Thumbnail
+    if progress_callback:
+        progress_callback(85, "Creating high-contrast 1080x1920 viral thumbnail badge...")
     print(f"[Step 4] Creating Custom COSMOS 1080x1920 Thumbnail...")
     frame_path = os.path.join(job_dir, "frame_preview.png")
     clean_source = final_video_path
@@ -235,6 +246,8 @@ def run_cosmos_short_pipeline(
     print(f"  Thumbnail created: {thumb_png}")
 
     # 5. Quality Assurance Checks
+    if progress_callback:
+        progress_callback(95, "Running final quality & duration verification...")
     print(f"[Step 5] Running Pre-Upload Quality Checks...")
     qa_results = {
         "video_exists": os.path.exists(final_video_path),

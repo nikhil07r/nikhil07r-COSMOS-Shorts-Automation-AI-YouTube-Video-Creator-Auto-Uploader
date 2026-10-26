@@ -73,6 +73,9 @@ app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 def startup_event():
     logger.info("Initializing COSMOS GROWTH OS Database...")
     init_db()
+    from backend.database import recover_stuck_jobs
+    recover_stuck_jobs()
+    logger.info("Stuck jobs checked & recovered.")
     
     # Auto sync channel info if token is available
     if TOKEN_FILE.exists():

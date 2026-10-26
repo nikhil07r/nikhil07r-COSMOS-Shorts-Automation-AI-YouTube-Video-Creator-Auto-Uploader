@@ -85,9 +85,15 @@ def init_db():
         video_path TEXT,
         thumbnail_path TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        completed_at TIMESTAMP
+        completed_at TIMESTAMP,
+        params_json TEXT
     );
     """)
+
+    try:
+        cursor.execute("ALTER TABLE jobs ADD COLUMN params_json TEXT;")
+    except Exception:
+        pass
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS calendar_events (
@@ -344,16 +350,39 @@ def get_drafts(limit: int = 20) -> List[Dict[str, Any]]:
         result.append(d)
     return result
 
-def create_job(job_id: str, draft_id: Optional[str] = None) -> Dict[str, Any]:
+def create_job(job_id: str, draft_id: Optional[str] = None, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     conn = get_connection()
     c = conn.cursor()
+    params_str = json.dumps(params, ensure_ascii=False) if params else None
     c.execute("""
-    INSERT INTO jobs (job_id, draft_id, status, progress_pct, current_step, created_at)
-    VALUES (?, ?, 'queued', 0, 'Job initialized', CURRENT_TIMESTAMP)
-    """, (job_id, draft_id))
+    INSERT INTO jobs (job_id, draft_id, status, progress_pct, current_step, created_at, params_json)
+    VALUES (?, ?, 'queued', 0, 'Job initialized', CURRENT_TIMESTAMP, ?)
+    """, (job_id, draft_id, params_str))
     conn.commit()
     conn.close()
     return {"job_id": job_id, "status": "queued", "progress_pct": 0}
+
+def recover_stuck_jobs():
+    """Unfreezes jobs left stranded by server reload or crashes."""
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute("""
+    UPDATE jobs 
+    SET status = 'interrupted', 
+        current_step = 'Render interrupted during system reload. Click to view or retry.',
+        error_message = 'Process was interrupted before completion.'
+    WHERE status IN ('processing', 'queued')
+    """)
+    conn.commit()
+    conn.close()
+
+def delete_job(job_id: str) -> bool:
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute("DELETE FROM jobs WHERE job_id = ?", (job_id,))
+    conn.commit()
+    conn.close()
+    return True
 
 def update_job(job_id: str, **kwargs):
     conn = get_connection()

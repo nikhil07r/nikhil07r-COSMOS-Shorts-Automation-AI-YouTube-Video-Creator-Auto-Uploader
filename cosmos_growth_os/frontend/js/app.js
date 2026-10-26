@@ -23,7 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
     currentVideoPath: null,
     currentThumbnailPath: null,
     currentTitle: null,
-    pollInterval: null
+    pollInterval: null,
+    selectedJob: null,
+    activePipelineJob: null
   };
 
   // Set Theme
@@ -45,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchCalendarEvents();
   fetchGrowthDiagnostics();
   fetchMilestoneRoadmap();
+  initPipelineTracker();
 
   // Setup Event Listeners
   setupEventListeners();
@@ -1454,29 +1457,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
     container.innerHTML = jobs.map(j => {
       const isDone = j.status === "completed";
+      const isInterrupted = j.status === "interrupted";
       const isFailed = j.status === "failed";
-      const statusColor = isDone ? "text-emerald-400 bg-emerald-500/10" : (isFailed ? "text-rose-400 bg-rose-500/10" : "text-violet-400 bg-violet-500/10");
+      const statusColor = isDone 
+        ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" 
+        : (isInterrupted 
+          ? "text-amber-400 bg-amber-500/10 border border-amber-500/20" 
+          : (isFailed 
+            ? "text-rose-400 bg-rose-500/10 border border-rose-500/20" 
+            : "text-violet-400 bg-violet-500/10 border border-violet-500/20"));
 
       return `
-        <div class="p-3 rounded-xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition flex items-center justify-between cursor-pointer job-item" data-id="${j.job_id}">
-          <div class="space-y-0.5">
-            <p class="font-bold text-xs text-white truncate max-w-xs">${j.job_id}</p>
-            <p class="text-[11px] text-gray-400">${j.current_step || j.status}</p>
+        <div class="p-3 rounded-xl bg-gray-900 border border-gray-800 hover:border-violet-500/50 hover:bg-gray-850 transition flex items-center justify-between cursor-pointer job-item group shadow-sm" data-id="${j.job_id}" title="Click to inspect 7-step pipeline lifecycle, retry, or preview">
+          <div class="space-y-0.5 max-w-[70%]">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="play-circle" class="w-3.5 h-3.5 text-violet-400 group-hover:scale-110 transition"></i>
+              <p class="font-bold text-xs text-white truncate">${j.job_id}</p>
+            </div>
+            <p class="text-[11px] text-gray-400 truncate">${j.current_step || j.status}</p>
           </div>
           <div class="flex items-center space-x-2">
+            <span class="text-[10px] font-mono font-bold text-gray-400">${j.progress_pct || 0}%</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusColor}">${j.status.toUpperCase()}</span>
+            <span class="text-[10px] text-violet-400 opacity-0 group-hover:opacity-100 transition hidden sm:inline">Inspect →</span>
           </div>
         </div>
       `;
     }).join("");
 
-    // Attach click listeners to load preview
+    if (window.lucide) lucide.createIcons();
+
+    // Attach click listeners to every job item: ALWAYS open Job Lifecycle & Inspector Modal
     document.querySelectorAll(".job-item").forEach(item => {
       item.addEventListener("click", () => {
         const jId = item.getAttribute("data-id");
         const found = state.jobs.find(x => x.job_id === jId);
-        if (found && found.video_path) {
-          loadVideoPreview(found);
+        if (found) {
+          if (found.video_path) {
+            loadVideoPreview(found);
+          }
+          openJobModal(found);
         }
       });
     });
@@ -1526,10 +1546,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (pctEl) pctEl.textContent = `${job.progress_pct}%`;
         if (fillEl) fillEl.style.width = `${job.progress_pct}%`;
 
+        // Keep modal live if inspecting this job
+        if (state.selectedJob && state.selectedJob.job_id === jobId) {
+          updateJobModalUI(job);
+        }
+        fetchActivePipeline();
+
         if (job.status === "completed") {
           clearInterval(state.pollInterval);
           showToast("Video rendered and synced successfully!", "success");
           fetchJobs();
+          if (state.selectedJob && state.selectedJob.job_id === jobId) {
+            updateJobModalUI(job);
+          }
           setTimeout(() => {
             if (card) card.classList.add("hidden");
           }, 3000);
@@ -1537,11 +1566,324 @@ document.addEventListener("DOMContentLoaded", () => {
           clearInterval(state.pollInterval);
           showToast("Video generation failed: " + job.error_message, "danger");
           fetchJobs();
+          if (state.selectedJob && state.selectedJob.job_id === jobId) {
+            updateJobModalUI(job);
+          }
         }
       } catch (e) {
         console.warn("Polling error:", e);
       }
     }, 2000);
+  }
+
+  // ----------------------------------------------------
+  // JOB LIFECYCLE & PIPELINE TRACKER
+  // ----------------------------------------------------
+  const jobModal = document.getElementById("job-detail-modal");
+  const btnCloseJobModal = document.getElementById("btn-close-job-modal");
+  const btnRetryJob = document.getElementById("btn-retry-job");
+  const btnDeleteJob = document.getElementById("btn-delete-job");
+  const btnJobLoadPreview = document.getElementById("btn-job-load-preview");
+  const btnJobSchedule = document.getElementById("btn-job-schedule");
+  const headerTrackerBtn = document.getElementById("header-pipeline-tracker");
+
+  function initPipelineTracker() {
+    if (headerTrackerBtn) {
+      headerTrackerBtn.addEventListener("click", () => {
+        if (state.activePipelineJob) {
+          openJobModal(state.activePipelineJob);
+        } else if (state.jobs && state.jobs.length > 0) {
+          openJobModal(state.jobs[0]);
+        } else {
+          showToast("No render jobs yet. Click 'New Short' to create one!", "info");
+        }
+      });
+    }
+
+    if (btnCloseJobModal) {
+      btnCloseJobModal.addEventListener("click", closeJobModal);
+    }
+
+    if (jobModal) {
+      jobModal.addEventListener("click", (e) => {
+        if (e.target === jobModal) closeJobModal();
+      });
+    }
+
+    if (btnRetryJob) {
+      btnRetryJob.addEventListener("click", async () => {
+        if (!state.selectedJob) return;
+        const jobId = state.selectedJob.job_id;
+        try {
+          btnRetryJob.disabled = true;
+          btnRetryJob.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Starting...</span>`;
+          if (window.lucide) lucide.createIcons();
+          
+          const res = await fetch(`/api/video/retry/${jobId}`, { method: "POST" });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Retry failed");
+          
+          showToast(`Restarted render for ${jobId}`, "success");
+          state.selectedJob.status = "processing";
+          state.selectedJob.progress_pct = 10;
+          state.selectedJob.current_step = "Retrying render pipeline...";
+          updateJobModalUI(state.selectedJob);
+          
+          startJobPolling(jobId, state.selectedJob.topic || "COSMOS Short");
+          fetchJobs();
+          fetchActivePipeline();
+        } catch (err) {
+          showToast("Retry failed: " + err.message, "danger");
+        } finally {
+          btnRetryJob.disabled = false;
+          btnRetryJob.innerHTML = `<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i><span>Retry Render Now</span>`;
+          if (window.lucide) lucide.createIcons();
+        }
+      });
+    }
+
+    if (btnDeleteJob) {
+      btnDeleteJob.addEventListener("click", async () => {
+        if (!state.selectedJob) return;
+        const jobId = state.selectedJob.job_id;
+        if (!confirm(`Dismiss and remove record for ${jobId}?`)) return;
+        try {
+          const res = await fetch(`/api/video/job/${jobId}`, { method: "DELETE" });
+          if (!res.ok) throw new Error("Delete failed");
+          showToast(`Job ${jobId} removed`, "info");
+          closeJobModal();
+          fetchJobs();
+          fetchActivePipeline();
+        } catch (err) {
+          showToast("Failed to remove job: " + err.message, "danger");
+        }
+      });
+    }
+
+    if (btnJobLoadPreview) {
+      btnJobLoadPreview.addEventListener("click", () => {
+        if (!state.selectedJob) return;
+        closeJobModal();
+        switchView("video");
+        loadVideoPreview(state.selectedJob);
+      });
+    }
+
+    if (btnJobSchedule) {
+      btnJobSchedule.addEventListener("click", () => {
+        if (!state.selectedJob) return;
+        const targetJob = state.selectedJob;
+        closeJobModal();
+        loadVideoPreview(targetJob);
+        switchView("schedule");
+        const openSchedBtn = document.getElementById("btn-open-schedule-modal");
+        if (openSchedBtn) openSchedBtn.click();
+      });
+    }
+
+    // Header poll
+    fetchActivePipeline();
+    setInterval(fetchActivePipeline, 3500);
+  }
+
+  function openJobModal(job) {
+    if (!jobModal || !job) return;
+    state.selectedJob = job;
+    updateJobModalUI(job);
+    jobModal.classList.remove("hidden");
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function closeJobModal() {
+    if (!jobModal) return;
+    jobModal.classList.add("hidden");
+    const modalVideo = document.getElementById("job-modal-video-player");
+    if (modalVideo) {
+      modalVideo.pause();
+      modalVideo.src = "";
+    }
+  }
+
+  function updateJobModalUI(job) {
+    if (!job) return;
+    state.selectedJob = job;
+
+    const idEl = document.getElementById("job-modal-id");
+    const titleEl = document.getElementById("job-modal-title");
+    const badgeEl = document.getElementById("job-modal-status-badge");
+    const stepTextEl = document.getElementById("job-modal-step-text");
+    const pctTextEl = document.getElementById("job-modal-pct-text");
+    const progressBar = document.getElementById("job-modal-progress-bar");
+    const errorBox = document.getElementById("job-modal-error-box");
+    const errorTitle = document.getElementById("job-modal-error-title");
+    const errorDesc = document.getElementById("job-modal-error-desc");
+    const videoBox = document.getElementById("job-modal-video-box");
+    const videoPlayer = document.getElementById("job-modal-video-player");
+    const retryBtn = document.getElementById("btn-retry-job");
+    const previewBtn = document.getElementById("btn-job-load-preview");
+    const schedBtn = document.getElementById("btn-job-schedule");
+
+    if (idEl) idEl.textContent = job.job_id || "cosmos_job";
+    if (titleEl) titleEl.textContent = job.topic || job.title || "COSMOS Short Pipeline";
+
+    const pct = Number(job.progress_pct || 0);
+    if (pctTextEl) pctTextEl.textContent = `${pct}%`;
+    if (progressBar) progressBar.style.width = `${pct}%`;
+    if (stepTextEl) stepTextEl.textContent = job.current_step || job.status || "Ready";
+
+    const status = (job.status || "ready").toLowerCase();
+    if (badgeEl) {
+      if (status === "completed") {
+        badgeEl.textContent = "COMPLETED";
+        badgeEl.className = "px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+      } else if (status === "processing" || status === "queued") {
+        badgeEl.textContent = "PROCESSING";
+        badgeEl.className = "px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase bg-violet-500/10 text-violet-400 border border-violet-500/30 animate-pulse";
+      } else if (status === "interrupted") {
+        badgeEl.textContent = "INTERRUPTED (SAFE RESUME)";
+        badgeEl.className = "px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase bg-amber-500/10 text-amber-300 border border-amber-500/30";
+      } else {
+        badgeEl.textContent = "FAILED";
+        badgeEl.className = "px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase bg-rose-500/10 text-rose-400 border border-rose-500/30";
+      }
+    }
+
+    const stages = [
+      { id: 1, minPct: 10, name: "Prompt & Concept" },
+      { id: 2, minPct: 25, name: "Hindi Script & Segmentation" },
+      { id: 3, minPct: 40, name: "EdgeTTS Voiceover" },
+      { id: 4, minPct: 60, name: "HD Visual Media" },
+      { id: 5, minPct: 75, name: "Dynamic Subtitles" },
+      { id: 6, minPct: 90, name: "FFmpeg 1080x1920 MP4" },
+      { id: 7, minPct: 100, name: "Viral Thumbnail & Schedule" }
+    ];
+
+    stages.forEach((st) => {
+      const stepRow = document.getElementById(`pipe-step-${st.id}`);
+      const stepNum = document.getElementById(`pipe-step-${st.id}-num`);
+      const stepStatus = document.getElementById(`pipe-step-${st.id}-status`);
+      if (!stepRow || !stepStatus) return;
+
+      if (status === "completed" || pct >= st.minPct) {
+        stepStatus.textContent = "✓ Completed";
+        stepStatus.className = "text-[10px] px-2 py-0.5 rounded font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        if (stepNum) stepNum.className = "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-emerald-500/20 text-emerald-400 font-mono";
+      } else if (status === "processing") {
+        const prevMin = st.id === 1 ? 0 : stages[st.id - 2].minPct;
+        if (pct >= prevMin && pct < st.minPct) {
+          stepStatus.textContent = "⚡ In Progress";
+          stepStatus.className = "text-[10px] px-2 py-0.5 rounded font-medium bg-violet-500/20 text-violet-300 border border-violet-500/40 animate-pulse";
+          if (stepNum) stepNum.className = "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-violet-500 text-white font-mono animate-pulse";
+        } else {
+          stepStatus.textContent = "Pending";
+          stepStatus.className = "text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-500";
+          if (stepNum) stepNum.className = "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-500 font-mono";
+        }
+      } else if (status === "interrupted" || status === "failed") {
+        const prevMin = st.id === 1 ? 0 : stages[st.id - 2].minPct;
+        if (pct >= prevMin && pct < st.minPct) {
+          stepStatus.textContent = status === "interrupted" ? "⚠️ Interrupted" : "✕ Failed";
+          stepStatus.className = "text-[10px] px-2 py-0.5 rounded font-medium bg-amber-500/20 text-amber-300 border border-amber-500/40";
+          if (stepNum) stepNum.className = "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-amber-500/20 text-amber-300 font-mono";
+        } else {
+          stepStatus.textContent = "Pending";
+          stepStatus.className = "text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-500";
+          if (stepNum) stepNum.className = "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-500 font-mono";
+        }
+      } else {
+        stepStatus.textContent = "Pending";
+        stepStatus.className = "text-[10px] px-2 py-0.5 rounded font-medium bg-gray-800 text-gray-500";
+        if (stepNum) stepNum.className = "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-800 text-gray-500 font-mono";
+      }
+    });
+
+    if (errorBox) {
+      if (status === "interrupted") {
+        errorBox.classList.remove("hidden");
+        if (errorTitle) errorTitle.textContent = "Pipeline Paused (Server Restart / Interrupted)";
+        if (errorDesc) errorDesc.textContent = "This render was halted before finishing when the background process stopped. All parameters and script texts are saved in SQLite. Click 'Retry Render Now' below to finish rendering with 1-click.";
+      } else if (status === "failed") {
+        errorBox.classList.remove("hidden");
+        if (errorTitle) errorTitle.textContent = "Pipeline Error Detected";
+        if (errorDesc) errorDesc.textContent = job.error_message || "An error occurred during video rendering. Click 'Retry Render Now' to re-attempt.";
+      } else {
+        errorBox.classList.add("hidden");
+      }
+    }
+
+    if (retryBtn) {
+      if (status === "interrupted" || status === "failed") {
+        retryBtn.classList.remove("hidden");
+      } else {
+        retryBtn.classList.add("hidden");
+      }
+    }
+
+    if (job.video_path) {
+      if (videoBox) videoBox.classList.remove("hidden");
+      if (videoPlayer) {
+        videoPlayer.src = `/api/video/stream/${job.job_id}`;
+      }
+      if (previewBtn) previewBtn.classList.remove("hidden");
+      if (schedBtn) schedBtn.classList.remove("hidden");
+    } else {
+      if (videoBox) videoBox.classList.add("hidden");
+      if (previewBtn) previewBtn.classList.add("hidden");
+      if (schedBtn) schedBtn.classList.add("hidden");
+    }
+  }
+
+  async function fetchActivePipeline() {
+    try {
+      const res = await fetch("/api/video/active");
+      if (!res.ok) return;
+      const data = await res.json();
+      state.activePipelineJob = data.active_job || data.latest_completed || (state.jobs && state.jobs[0]);
+
+      const pulseEl = document.getElementById("pipeline-status-pulse");
+      const pingEl = document.getElementById("pipeline-status-ping");
+      const labelEl = document.getElementById("pipeline-status-label");
+      const pctEl = document.getElementById("pipeline-status-pct");
+
+      if (data.active_job) {
+        const j = data.active_job;
+        if (pulseEl) pulseEl.className = "w-2.5 h-2.5 rounded-full bg-violet-400 inline-block";
+        if (pingEl) pingEl.className = "absolute w-2.5 h-2.5 rounded-full bg-violet-400 animate-ping opacity-75";
+        if (labelEl) {
+          const step = j.current_step || "Rendering Short...";
+          labelEl.textContent = step.length > 25 ? step.substring(0, 23) + "..." : step;
+        }
+        if (pctEl) {
+          pctEl.textContent = `${j.progress_pct || 0}%`;
+          pctEl.className = "text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-violet-950 text-violet-300 border border-violet-700/50";
+        }
+
+        if (state.selectedJob && state.selectedJob.job_id === j.job_id && jobModal && !jobModal.classList.contains("hidden")) {
+          updateJobModalUI(j);
+        }
+      } else {
+        const hasInterrupted = state.jobs && state.jobs.some(x => x.status === "interrupted");
+        if (hasInterrupted) {
+          if (pulseEl) pulseEl.className = "w-2.5 h-2.5 rounded-full bg-amber-400 inline-block";
+          if (pingEl) pingEl.className = "hidden absolute w-2.5 h-2.5 rounded-full";
+          if (labelEl) labelEl.textContent = "Render Interrupted";
+          if (pctEl) {
+            pctEl.textContent = "Retry";
+            pctEl.className = "text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-amber-950 text-amber-300 border border-amber-700/50";
+          }
+        } else {
+          if (pulseEl) pulseEl.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block";
+          if (pingEl) pingEl.className = "hidden absolute w-2.5 h-2.5 rounded-full";
+          if (labelEl) labelEl.textContent = "Pipeline Ready";
+          if (pctEl) {
+            pctEl.textContent = "Ready";
+            pctEl.className = "text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-gray-800 text-gray-300 border border-gray-700";
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Active pipeline fetch error:", e);
+    }
   }
 
   // ----------------------------------------------------
