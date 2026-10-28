@@ -1,7 +1,7 @@
 [
   {
     "id": "strange_places_01",
-    "category": "Strange Places",
+    "category": "Earth Mysteries",
     "topic_en": "5 Most Mysterious Places on Earth",
     "topic_hi": "दुनिया की 5 सबसे रहस्यमयी जगहें",
     "master_script": "क्या आप जानते हैं हमारी पृथ्वी पर कुछ ऐसी जगहें मौजूद हैं जो किसी दूसरी दुनिया जैसी लगती हैं? नंबर 1: बोलीविया का सलार दे उयुनी — बारिश के बाद यह नमक का मैदान दुनिया का सबसे बड़ा प्राकृतिक आईना बन जाता है। नंबर 2: यमन का सोकोट्रा आइलैंड — यहाँ के ड्रैगन ब्लड पेड़ ऐसे अजीब दिखते हैं मानो आप किसी एलियन की दुनिया में आ गए हों। नंबर 3: तुर्की का पामुक्काले — कुदरत के बनाए बर्फ जैसे सफ़ेद पत्थरों के बीच गर्म पानी के जादुई झरने। नंबर 4: न्यूज़ीलैंड की वैटोमो गुफाएं — जहाँ अंधेरी गुफाओं में लाखों नीले ग्लोवर्म्स तारों की तरह चमकते हैं। और नंबर 5: तुर्कमेनिस्तान का नर्क का दरवाज़ा — जहाँ ज़मीन का एक विशाल गड्ढा पिछले 50 सालों से लगातार धधक रहा है। इनमें से आप किस जगह पर जाना चाहेंगे? कमेंट में ज़रूर बताएं!",
@@ -19,7 +19,7 @@
   },
   {
     "id": "space_01",
-    "category": "Space",
+    "category": "Space & Universe",
     "topic_en": "Terrifying Things Happening in Space Right Now",
     "topic_hi": "अंतरिक्ष की 4 सबसे डरावनी घटनाएं",
     "master_script": "क्या आप जानते हैं हमारे ब्रह्मांड में ऐसी भयानक घटनाएं घट रही हैं जो हमारी पूरी पृथ्वी को पलक झपकते ही तबाह कर सकती हैं? नंबर 1: सुपरमैसिव ब्लैक होल — अंतरिक्ष का वो भूखा दानव जिससे प्रकाश भी बचकर नहीं निकल सकता। नंबर 2: सुपरनोवा विस्फोट — जब कोई विशाल तारा मरता है तो होने वाला महाविस्फोट अरबों सूर्यों जितनी ऊर्जा छोड़ता है। नंबर 3: रोग प्लैनेट्स — बिना किसी तारे के अंतरिक्ष के अंधेरे और भयंकर ठंड में भटकते हुए अनाथ ग्रह। और नंबर 4: न्यूट्रॉन स्टार — जिसका सिर्फ एक चम्मच पदार्थ पूरी पृथ्वी के सभी इंसानों और पहाड़ों से भी भारी होता है। अंतरिक्ष की इन शक्तियों के सामने हम कितने छोटे हैं, कमेंट में ज़रूर बताएं!",
@@ -52,7 +52,7 @@
   },
   {
     "id": "ocean_mystery_01",
-    "category": "Science & Nature",
+    "category": "Science Anomalies",
     "topic_en": "Deep Ocean Creatures That Look Alien",
     "topic_hi": "समुद्र की गहराइयों के सबसे अजीबोगरीब जीव",
     "master_script": "क्या आप जानते हैं हमारे समुद्र की गहराइयों में ऐसे भयानक जीव रहते हैं जो किसी हॉरर फ़िल्म के एलियन से कम नहीं दिखते? नंबर 1: एंग्लरफ़िश — गहरे काले अंधेरे में अपने सिर पर रोशनी का बल्ब जलाकर शिकार को अपनी ओर खींचने वाली भयानक शिकारी मछली। नंबर 2: जाइंट स्क्विड — समुद्र की अतल गहराइयों का दानव, जिसकी आंखें बास्केटबॉल जितनी बड़ी होती हैं। और नंबर 3: बायोल्यूमिनसेंट जेलीफ़िश — जो अंधेरे पानी में नीली और हरी बिजली जैसी रोशनी बिखेरती हैं मानो जादू चल रहा हो। समुद्र की इस अंधेरी दुनिया के बारे में आपकी क्या राय है? कमेंट में ज़रूर बताएं!",
@@ -84,7 +84,7 @@
   },
   {
     "id": "extreme_weather_01",
-    "category": "Science & Nature",
+    "category": "Science Anomalies",
     "topic_en": "Most Shocking Weather Phenomena",
     "topic_hi": "कुदरत के सबसे भयानक मौसम के रूप",
     "master_script": "क्या आप जानते हैं हमारी कुदरत जब अपना भयानक रूप दिखाती है तो आसमान से ऐसे नज़ारे बरसते हैं जो रोंगटे खड़े कर देते हैं? नंबर 1: कैटाटुम्बो बिजली — वेनेज़ुएला की वो जगह जहाँ साल में 300 रातें लगातार आसमान से भयानक बिजली कड़कती रहती है। नंबर 2: सुपरसेल बवंडर — बादलों से ज़मीन तक उतरता हुआ हवा का घूमता हुआ दैत्य जो रास्ते में आने वाले पूरे शहर को उड़ा ले जाता है। और नंबर 3: वोल्केनिक लाइटनिंग — जब धधकते ज्वालामुखी के काले धुएँ के बीच आग और बिजली एक साथ टकराती हैं। कुदरत की इस ताकत को देखकर आपको कैसा लगा? कमेंट में ज़रूर बताएं!",
@@ -182,5 +182,175 @@
     ],
     "theme_color": "#F59E0B",
     "thumbnail_text": "कॉफी ने बचाई जान?!"
+  },
+  {
+    "id": "space_blackhole_02",
+    "category": "Space & Universe",
+    "topic_en": "What Happens If You Fall Into a Supermassive Black Hole?",
+    "topic_hi": "अगर आप ब्लैक होल में गिर जाएं तो क्या होगा?",
+    "master_script": "क्या आप जानते हैं कि ब्रह्मांड के सबसे बड़े ब्लैक होल के अंदर समय सचमुच में रुक जाता है? सोचिए अगर आपका स्पेसशिप ब्लैक होल की सीमा यानी 'इवेंट होराइजन' को पार कर जाए! बाहर से देखने वाले को लगेगा कि आप वहीं हमेशा के लिए जम गए हैं, लेकिन आपके लिए समय इतनी तेजी से भागेगा कि आप कुछ ही सेकंड्स में पूरे ब्रह्मांड का भविष्य और अंत अपनी आंखों से देख लेंगे! इसके बाद शुरू होता है 'स्पैगेटीफिकेशन' — जहां गुरुत्वाकर्षण आपके शरीर को एक पतले धागे की तरह लाखों किलोमीटर लंबा खींच देगा! क्या इंसान कभी ब्लैक होल के रहस्यों को समझ पाएगा? कमेंट में अपनी राय दें और ब्रह्मांड के ऐसे ही चमत्कारों के लिए COSMOS VIRAL को सब्सक्राइब करें!",
+    "sequential_search_terms": [
+      "supermassive black hole gravitational lens",
+      "event horizon space simulation",
+      "spaceship entering wormhole dark abyss",
+      "galaxy collision stars explosion",
+      "universe cosmic web expansion",
+      "black hole accretion disk glowing"
+    ],
+    "theme_color": "#8B5CF6",
+    "thumbnail_text": "ब्लैक होल का सच?!"
+  },
+  {
+    "id": "space_sun_sound_03",
+    "category": "Space & Universe",
+    "topic_en": "The Terrifying Screaming Sound of the Sun NASA Recorded",
+    "topic_hi": "सूरज की वो भयानक चीख जिसे नासा ने रिकॉर्ड किया!",
+    "master_script": "क्या आप जानते हैं कि हमारा सूरज अंतरिक्ष में खामोश नहीं है, बल्कि 100 करोड़ परमाणु बमों जितनी भयानक आवाज से लगातार चीख रहा है? अगर अंतरिक्ष में हवा होती, तो सूरज की दहाड़ पृथ्वी पर 110 डेसिबल जितनी तेज सुनाई देती — यानी एक ट्रेन के सायरन से भी ज्यादा कान फाड़ू! नासा की 'सोलर डायनेमिक्स ऑब्जर्वेटरी' ने सूरज की सतह पर उठने वाली ध्वनि तरंगों को इंसानी कानों के सुनने लायक बनाया। यह आवाज इतनी डरावनी है जैसे कोई विशालकाय दानव अंतरिक्ष में सांस ले रहा हो! सोचिए, 15 करोड़ किलोमीटर दूर होने के बावजूद सूरज की ये तरंगे पृथ्वी के मौसम को हिला देती हैं! क्या आपने सूरज की इस आवाज को सुना था? कमेंट करें और COSMOS VIRAL को सब्सक्राइब करें!",
+    "sequential_search_terms": [
+      "sun solar flare surface glowing fiery",
+      "nasa solar dynamics observatory satellite",
+      "sun corona plasma explosion",
+      "earth and sun comparison in dark space",
+      "fiery magnetic loops on sun surface",
+      "solar storm reaching earth atmosphere"
+    ],
+    "theme_color": "#F59E0B",
+    "thumbnail_text": "सूरज की भयानक चीख?!"
+  },
+  {
+    "id": "earth_sailing_stones_02",
+    "category": "Earth Mysteries",
+    "topic_en": "The Moving Sailing Stones of Death Valley Mystery Solved",
+    "topic_hi": "डेथ वैली के वो रहस्यमयी पत्थर जो अपने आप चलते हैं!",
+    "master_script": "अमेरिका की 'डेथ वैली' रेगिस्तान में 300 किलो भारी विशाल पत्थर अपने आप सैकड़ों मीटर तक फिसल जाते हैं, और पीछे एक साफ रास्ता छोड़ जाते हैं! 70 सालों तक वैज्ञानिक हैरान थे कि बिना किसी इंसान या जानवर के ये पत्थर कैसे चल रहे हैं? कोई इसे एलियंस का काम कहता था, तो कोई जादुई ऊर्जा! लेकिन 2014 में वैज्ञानिकों ने हाई-स्पीड कैमरों से जो देखा, उसने पूरी दुनिया को चौंका दिया! सर्दियों की रातों में रेगिस्तान की सतह पर कांच जैसी पतली बर्फ की चादर जमती है, और सुबह की धूप में हल्की हवा के दबाव से ये विशाल पत्थर बर्फ के ऊपर चुपचाप तैरने लगते हैं! प्रकृति का यह करिश्मा वाकई हैरान करने वाला है! इस रहस्य के बारे में आप क्या सोचते हैं? सब्सक्राइब करें COSMOS VIRAL!",
+    "sequential_search_terms": [
+      "death valley dry cracked desert ground",
+      "sailing stone sliding rock trail desert",
+      "desert ice sheets winter morning sun",
+      "time lapse moving rocks death valley",
+      "dramatic desert landscape sunset",
+      "close up trail of moving stone"
+    ],
+    "theme_color": "#10B981",
+    "thumbnail_text": "चलते हुए पत्थर?!"
+  },
+  {
+    "id": "earth_lake_natron_03",
+    "category": "Earth Mysteries",
+    "topic_en": "Lake Natron: The Deadly African Lake That Turns Animals to Stone",
+    "topic_hi": "तंजानिया की वो झील जो जानवरों को पत्थर बना देती है!",
+    "master_script": "सोचिए अगर धरती पर एक ऐसी झील हो जिसके पानी को छूते ही कोई भी परिंदा या जानवर हमेशा के लिए पत्थर की मूर्ति में बदल जाए! अफ्रीका के तंजानिया में स्थित 'लेक नैट्रॉन' एक ऐसी ही खौफनाक जगह है। इस झील का पानी खून की तरह लाल है और इसका तापमान 60 डिग्री सेल्सियस तक पहुंच जाता है! पास के ज्वालामुखी से निकलने वाला सोडियम कार्बोनेट इस झील को इतना क्षारीय बना देता है कि जो भी परिंदा इसमें गलती से गिरता है, उसका शरीर तुरंत जम जाता है और कुछ ही हफ्तों में वह एकदम सफेद पत्थर जैसा कड़ा हो जाता है! वैज्ञानिकों का कहना है कि यह झील बिल्कुल प्राचीन मिस्र के ममी बनाने वाले फार्मूले की तरह काम करती है! क्या आप कभी ऐसी झील देखने की हिम्मत करेंगे? कमेंट में बताएं और COSMOS VIRAL को सब्सक्राइब करें!",
+    "sequential_search_terms": [
+      "lake natron tanzania red water aerial",
+      "petrified bird stone lake natron eerie",
+      "volcano active crater smoke africa",
+      "flamingos flying over red salt lake",
+      "dramatic red caustic water reflection",
+      "african salt flats alien landscape"
+    ],
+    "theme_color": "#EF4444",
+    "thumbnail_text": "पत्थर बनाने वाली झील?!"
+  },
+  {
+    "id": "danger_snake_island_02",
+    "category": "Dangerous Places",
+    "topic_en": "Snake Island Brazil: Where Humans Are Banned from Stepping Foot",
+    "topic_hi": "ब्राजील का वो द्वीप जहां हर 1 मीटर पर मौजूद है मौत!",
+    "master_script": "ब्राजील के तट से 30 किलोमीटर दूर एक ऐसा शापित द्वीप है जहां अगर कोई इंसान चला जाए, तो उसका जिंदा वापस आना नामुमकिन है — 'इल्हा दा क्वेमादा ग्रांडे', जिसे स्नेक आइलैंड कहा जाता है! इस द्वीप पर 4 लाख से ज्यादा दुनिया के सबसे जहरीले 'गोल्डन लांसहेड' सांप रहते हैं। इनका जहर इतना खतरनाक है कि इंसान का मांस तुरंत पिघलने लगता है! कहते हैं कि 1920 में लाइटहाउस चलाने वाले कीपर और उसके पूरे परिवार को सांपों ने खिड़की से घुसकर मार डाला था। इसके बाद ब्राजील की नेवी ने इस द्वीप पर इंसानों के जाने पर हमेशा के लिए बैन लगा दिया! आज यह पूरा द्वीप सिर्फ सांपों का साम्राज्य है! क्या आप 1 करोड़ रुपये के लिए भी इस द्वीप पर एक रात बिताएंगे? कमेंट करें और COSMOS VIRAL को सब्सक्राइब करें!",
+    "sequential_search_terms": [
+      "isolated rocky island aerial ocean storm",
+      "golden lancehead pit viper snake branch",
+      "abandoned lighthouse overgrown jungle island",
+      "tropical dense jungle snake crawling",
+      "brazilian navy boat guarding island",
+      "ocean waves crashing on dangerous rocks"
+    ],
+    "theme_color": "#F97316",
+    "thumbnail_text": "मौत का द्वीप?!"
+  },
+  {
+    "id": "danger_sentinel_03",
+    "category": "Dangerous Places",
+    "topic_en": "North Sentinel Island: The Most Isolated Tribe on Earth",
+    "topic_hi": "नॉर्थ सेंटिनल आइलैंड: 60,000 साल पुरानी रहस्यमयी जनजाति!",
+    "master_script": "भारत के अंडमान में एक ऐसा रहस्यमयी द्वीप है जहां आज भी पाषाण काल का दौर चल रहा है — 'नॉर्थ सेंटिनल आइलैंड'! यहां रहने वाले सेंटिनलीज लोग पिछले 60,000 सालों से बाहरी दुनिया से पूरी तरह कटे हुए हैं। उन्हें न तो आग जलाना आता है और न ही पहिए का इस्तेमाल। अगर कोई भी नाव या हेलीकॉप्टर उनके द्वीप के करीब जाता है, तो वे जहरीले तीरों और भालों की बौछार कर देते हैं! भारत सरकार ने इस द्वीप के 5 किलोमीटर के दायरे में किसी भी इंसान के जाने पर सख्त पाबंदी लगाई हुई है, ताकि ये जनजाति अपनी मूल संस्कृति में सुरक्षित रह सके। आधुनिक दुनिया में भी यह द्वीप समय में ठहरा हुआ एक अजूबा है! इस रहस्यमयी जनजाति के बारे में आपका क्या सोचना है? सब्सक्राइब करें COSMOS VIRAL!",
+    "sequential_search_terms": [
+      "north sentinel island aerial pristine beaches",
+      "dense tropical jungle ancient trees aerial",
+      "wooden arrows flying towards beach",
+      "isolated primitive tribe silhouette beach",
+      "indian coast guard vessel patrolling sea",
+      "pristine turquoise water coral reef island"
+    ],
+    "theme_color": "#F97316",
+    "thumbnail_text": "समय में फंसा द्वीप?!"
+  },
+  {
+    "id": "history_antikythera_02",
+    "category": "Human History",
+    "topic_en": "Antikythera Mechanism: The 2,000-Year-Old Greek Computer",
+    "topic_hi": "एंटीकाइथेरा मैकेनिज्म: 2000 साल पुराना ग्रीक कंप्यूटर!",
+    "master_script": "1901 में ग्रीस के एक प्राचीन समुद्री मलबे से गोताखोरों को कांसे की 30 से ज्यादा बारीक गियर्स वाली एक जंग लगी मशीन मिली, जिसने वैज्ञानिकों के होश उड़ा दिए! इसे दुनिया का पहला एनालॉग कंप्यूटर कहा जाता है — 'एंटीकाइथेरा मैकेनिज्म'। 2,000 साल पहले जब दुनिया सिर्फ लकड़ी और पत्थरों के औजार जानती थी, तब यूनानियों ने एक ऐसी पोर्टेबल मशीन बना ली थी जो सूर्य, चंद्रमा और पांचों ग्रहों की गति, चंद्रग्रहण और यहां तक कि ओलंपिक खेलों की सटीक तारीखों की गणना कर सकती थी! आधुनिक घड़ियों जैसे गियर्स की तकनीक इसके 1,500 साल बाद जाकर खोजी गई थी! सोचिए, हमारे पूर्वज विज्ञान में हमसे कितने आगे थे? क्या इतिहास में कोई खोया हुआ ज्ञान था? कमेंट में बताएं और COSMOS VIRAL को सब्सक्राइब करें!",
+    "sequential_search_terms": [
+      "antique bronze gears clockwork mechanism",
+      "underwater shipwreck diver ancient artifacts",
+      "ancient greek astrolabe astronomical computer",
+      "xray scan 3d antikythera mechanism gears",
+      "ancient parthenon athens ruins sunset",
+      "astronomical planetary clock golden gear"
+    ],
+    "theme_color": "#EAB308",
+    "thumbnail_text": "2000 साल पुराना कंप्यूटर?!"
+  },
+  {
+    "id": "history_roman_concrete_03",
+    "category": "Human History",
+    "topic_en": "Why Roman Concrete Gets Stronger Over 2,000 Years",
+    "topic_hi": "रोमन कंक्रीट का रहस्य: जो 2000 साल बाद भी टूटता नहीं!",
+    "master_script": "आज के आधुनिक पुल और इमारतें 50 से 100 साल में दरकने लगती हैं, लेकिन 2,000 साल पहले बना रोम का 'पैंथियन' और समुद्री बंदरगाह आज भी वैसे के वैसे खड़े हैं! वैज्ञानिक सदियों से यह समझने की कोशिश कर रहे थे कि रोमन कंक्रीट समय के साथ कमजोर होने के बजाय और ज्यादा मजबूत कैसे होता जाता है? 2023 में एमआईटी के वैज्ञानिकों ने आखिरकार यह रहस्य सुलझा लिया! रोमनों ने अपने कंक्रीट में बिना बुझा चूना और ज्वालामुखी की राख मिलाई थी। जब कंक्रीट में कोई दरार पड़ती है और बारिश का पानी अंदर जाता है, तो चूना तुरंत पानी से रिएक्ट करके कैल्शियम कार्बोनेट बनाता है और दरार को अपने आप भर देता है — यानी यह कंक्रीट खुद को ठीक कर लेता है! प्राचीन काल की इस इंजीनियरिंग के लिए एक लाइक तो बनता है! सब्सक्राइब करें COSMOS VIRAL!",
+    "sequential_search_terms": [
+      "pantheon rome dome ancient architecture",
+      "ancient roman concrete harbor waves crashing",
+      "microscope scan self healing concrete crack",
+      "roman empire colosseum sunset aerial",
+      "volcanic ash mixing ancient builders",
+      "ancient roman aqueduct standing strong"
+    ],
+    "theme_color": "#EAB308",
+    "thumbnail_text": "खुद जुड़ने वाला कंक्रीट?!"
+  },
+  {
+    "id": "tech_quantum_01",
+    "category": "Technology & AI",
+    "topic_en": "How Quantum Computers Can Break All Encryption in Seconds",
+    "topic_hi": "क्वांटम कंप्यूटर: जो दुनिया के हर पासवर्ड को 5 सेकंड में तोड़ सकता है!",
+    "master_script": "अगर मैं आपसे कहूं कि एक ऐसा कंप्यूटर आ चुका है जो आपकी बैंक का पासवर्ड, दुनिया भर के सैटेलाइट्स और मिलिट्री सीक्रेट्स को पलक झपकते ही हैक कर सकता है! सामान्य कंप्यूटर 'बिट्स' यानी 0 और 1 में काम करते हैं, लेकिन क्वांटम कंप्यूटर 'क्यूबिट्स' का इस्तेमाल करते हैं — जो एक ही समय में 0 और 1 दोनों हो सकते हैं! जिसे हल करने में दुनिया के सबसे तेज सुपरकंप्यूटर को 10,000 साल लगेंगे, उसे गूगल का क्वांटम प्रोसेसर सिर्फ 200 सेकंड में हल कर देता है! इसी वजह से दुनिया के सारे देश अपनी सुरक्षा को क्वांटम-प्रूफ बनाने में अरबों डॉलर बहा रहे हैं! क्या एआई और क्वांटम मिलकर इंसानियत को बदल देंगे? कमेंट में बताएं और टेक्नोलॉजी के भविष्य के लिए COSMOS VIRAL को सब्सक्राइब करें!",
+    "sequential_search_terms": [
+      "quantum computer golden chandelier cryostat",
+      "glowing qubits quantum processor chip",
+      "binary code encryption matrix cybersecurity",
+      "supercomputer server room glowing blue",
+      "artificial intelligence neural network futuristic",
+      "laser optical quantum physics laboratory"
+    ],
+    "theme_color": "#06B6D4",
+    "thumbnail_text": "हर पासवर्ड क्रैक?!"
+  },
+  {
+    "id": "tech_voyager_02",
+    "category": "Technology & AI",
+    "topic_en": "Voyager 1: 24 Billion Kilometers Away and Still Sending Signals",
+    "topic_hi": "वॉयजर 1: धरती से 24 अरब किलोमीटर दूर से आ रहा संदेश!",
+    "master_script": "1977 में छोड़ा गया 'वॉयजर 1' स्पेसक्राफ्ट आज इंसानी इतिहास में धरती से सबसे दूर जाने वाली वस्तु बन चुका है — 24 अरब किलोमीटर दूर, जहां सूरज भी सिर्फ एक टिमटिमाता तारा दिखाई देता है! सोचिए, 47 साल पुराने एक 8-ट्रैक टेप रिकॉर्डर और 69 किलोबाइट मेमोरी वाले कंप्यूटर के साथ यह यान आज भी शून्य से 270 डिग्री नीचे की कड़ाके की ठंड में सिग्नल भेज रहा है! इसके रेडियो सिग्नल को धरती तक पहुंचने में 22 घंटे से ज्यादा का वक्त लगता है। इसमें एक 'गोल्डन रिकॉर्ड' भी लगा है, जिस पर इंसानी सभ्यता की आवाजें, 55 भाषाओं में अभिवादन और भारतीय शास्त्रीय संगीत रिकॉर्ड है, ताकि अगर कोई एलियन मिले तो वह हमसे संपर्क कर सके! इंसानी जज्बे के इस सबसे बड़े प्रतीक के लिए लाइक करें और सब्सक्राइब करें COSMOS VIRAL!",
+    "sequential_search_terms": [
+      "voyager 1 spacecraft deep dark space stars",
+      "golden record attached to voyager probe",
+      "earth pale blue dot from deep space",
+      "deep space network giant satellite dish antenna",
+      "interstellar space cosmic dust glowing",
+      "computer retro 1970s technology vintage"
+    ],
+    "theme_color": "#06B6D4",
+    "thumbnail_text": "24 अरब KM दूर से सिग्नल?!"
   }
 ]

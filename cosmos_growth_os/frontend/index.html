@@ -352,37 +352,58 @@
             <!-- Story Mode Box -->
             <div id="panel-mode-story" class="cosmos-card p-5 space-y-4">
               <!-- 2.6K Winning Blueprint Banner & Quick Topic Selector -->
-              <div class="p-3 bg-gradient-to-r from-amber-950/40 via-yellow-950/20 to-gray-900 rounded-xl border border-amber-500/30 space-y-2">
+              <div class="p-3.5 bg-gradient-to-r from-amber-950/40 via-yellow-950/20 to-gray-900 rounded-xl border border-amber-500/30 space-y-2.5">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                    <span>🎖️</span>
-                    <span>2.6K Formula: WWII & Warfare Extreme Hacks</span>
+                  <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5" id="formula-banner-header">
+                    <span id="formula-banner-icon">🎖️</span>
+                    <span id="formula-banner-title">2.6K Formula: WWII & Warfare Extreme Hacks</span>
                   </span>
-                  <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold">#1 WINNER STYLE</span>
+                  <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold" id="formula-banner-badge">#1 WINNER STYLE</span>
                 </div>
-                <p class="text-[11px] text-gray-300">
-                  Modeled on your highest-performing Short (2,648 views). Click any topic below or type your own custom topic anytime:
+                <p class="text-[11px] text-gray-300" id="formula-banner-desc">
+                  Modeled on your highest-performing Short (2,648 views). Switch niches or click any topic to immediately load the script:
                 </p>
-                <div class="flex flex-wrap gap-1.5 pt-1" id="winning-topic-pills">
-                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-amber-500/50 text-[11px] text-amber-200 hover:bg-amber-500/20 hover:text-white transition font-medium" data-topic="WWII Soldiers Turned Grenades Into Grappling Hooks">
-                    💣 Grenade Grappling Hook (2.6K Hit)
-                  </button>
-                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 hover:border-amber-500/40 hover:text-amber-200 transition" data-topic="How Soviet Night Witches Flew Silent Wooden Planes in WWII">
-                    ✈️ Soviet Night Witches (Silent Planes)
-                  </button>
-                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 hover:border-amber-500/40 hover:text-amber-200 transition" data-topic="The Inflatable Ghost Army That Fooled Hitler with Rubber Tanks">
-                    🎈 Ghost Army (Fake Rubber Tanks)
-                  </button>
-                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 hover:border-amber-500/40 hover:text-amber-200 transition" data-topic="Project Habakkuk: The Secret WWII Aircraft Carrier Made of Ice">
-                    🧊 Project Habakkuk (Ice Carrier)
-                  </button>
-                  <button type="button" class="btn-topic-pill px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 hover:border-amber-500/40 hover:text-amber-200 transition" data-topic="Why WWII Submariners Poured Coffee Grounds into Leaking Torpedo Tubes">
-                    ☕ Submarine Coffee Leak Fix
-                  </button>
-                  <button type="button" id="btn-surprise-wwii-topic" class="px-2.5 py-1 rounded-lg bg-amber-600/30 border border-amber-500/50 text-[11px] text-amber-300 hover:bg-amber-600 hover:text-white transition flex items-center gap-1 font-semibold">
-                    <i data-lucide="sparkles" class="w-3 h-3"></i>
-                    <span>🎲 Suggest Fresh Topic</span>
-                  </button>
+
+                <!-- Niche Category Tabs (Switch on others) -->
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Switch Niche / Category:</span>
+                    <span class="text-[10px] text-amber-400 font-mono" id="formula-active-cat-label">WWII & Warfare</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none" id="formula-category-tabs">
+                    <button type="button" class="btn-formula-tab formula-tab-active px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap" data-cat="WWII & Warfare Extreme Inventions (2.6K Formula)">
+                      🎖️ WWII Hacks (2.6K Hit)
+                    </button>
+                    <button type="button" class="btn-formula-tab px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap bg-gray-900 text-gray-400 border border-gray-800 hover:text-white" data-cat="Space & Universe">
+                      🚀 Space & Universe
+                    </button>
+                    <button type="button" class="btn-formula-tab px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap bg-gray-900 text-gray-400 border border-gray-800 hover:text-white" data-cat="Earth Mysteries">
+                      🗺️ Earth Mysteries
+                    </button>
+                    <button type="button" class="btn-formula-tab px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap bg-gray-900 text-gray-400 border border-gray-800 hover:text-white" data-cat="Dangerous Places">
+                      ⚠️ Dangerous Places
+                    </button>
+                    <button type="button" class="btn-formula-tab px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap bg-gray-900 text-gray-400 border border-gray-800 hover:text-white" data-cat="Human History">
+                      🏛️ Human History
+                    </button>
+                    <button type="button" class="btn-formula-tab px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap bg-gray-900 text-gray-400 border border-gray-800 hover:text-white" data-cat="Science Anomalies">
+                      🧬 Science Anomalies
+                    </button>
+                    <button type="button" class="btn-formula-tab px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap bg-gray-900 text-gray-400 border border-gray-800 hover:text-white" data-cat="Technology & AI">
+                      🤖 Tech & AI
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Topic Pills for Current Active Category -->
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Select Topic Hook (Auto-loads Script):</span>
+                    <span class="text-[10px] text-gray-500 font-mono" id="formula-topics-count">5 Topics</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5 pt-0.5" id="winning-topic-pills">
+                    <!-- Populated dynamically via JS -->
+                  </div>
                 </div>
               </div>
 
@@ -478,15 +499,85 @@
           <!-- Right: Output Editor & Policy Checker -->
           <div class="lg:col-span-7 space-y-4">
             <div class="cosmos-card p-5 space-y-4">
-              <div class="flex items-center justify-between">
-                <input id="studio-title-input" class="bg-transparent font-bold text-sm text-white focus:outline-none border-b border-transparent focus:border-violet-500 w-3/4" placeholder="Generated Short Title with emoji">
-                <span id="studio-duration-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-medium">~52s</span>
+              <!-- Title Input & Action Row -->
+              <div class="flex items-center justify-between gap-3 border-b border-gray-800 pb-3">
+                <input id="studio-title-input" class="bg-transparent font-bold text-sm text-white focus:outline-none border-b border-transparent focus:border-violet-500 flex-1" placeholder="Type or Paste Your Short Title (e.g. 5 Most Mysterious Places on Earth 😱)">
+                <div class="flex items-center gap-2">
+                  <span id="studio-duration-badge" class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 font-medium font-mono whitespace-nowrap">0 words (~0s)</span>
+                  <button type="button" id="btn-clear-manual-script" class="px-2.5 py-1 rounded-lg bg-gray-900 border border-gray-700 hover:border-rose-500 text-[11px] text-gray-300 hover:text-rose-300 flex items-center gap-1 transition shadow-sm" title="Clear all text to write your own custom script manually">
+                    <i data-lucide="eraser" class="w-3.5 h-3.5"></i>
+                    <span>Clear to Write Manually</span>
+                  </button>
+                </div>
               </div>
 
-              <!-- Hindi Script Area -->
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Narration Script (Hindi Devanagari)</label>
-                <textarea id="studio-script-input" rows="8" class="w-full bg-gray-900/80 border border-gray-800 rounded-xl p-3 text-sm text-gray-100 font-hindi focus:outline-none focus:border-violet-500 leading-relaxed" placeholder="The generated Hindi narration will appear here. You can directly edit any word before rendering..."></textarea>
+              <!-- Language & Voice Narration Controls -->
+              <div class="grid grid-cols-2 gap-3 p-2.5 bg-gray-900/60 rounded-xl border border-gray-800 text-xs">
+                <div>
+                  <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <i data-lucide="globe" class="w-3 h-3 text-cyan-400"></i>
+                    <span>Narration Language</span>
+                  </label>
+                  <select id="studio-script-lang" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                    <option value="auto" selected>🌐 Auto-Detect from Script</option>
+                    <option value="hindi">🇮🇳 Hindi (हिंदी Devanagari)</option>
+                    <option value="english">🇺🇸 English</option>
+                    <option value="hinglish">🇮🇳 Hinglish (Roman Script)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <i data-lucide="mic" class="w-3 h-3 text-violet-400"></i>
+                    <span>Voice Actor (EdgeTTS)</span>
+                  </label>
+                  <select id="studio-script-voice" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-1.5 text-xs text-white focus:outline-none focus:border-violet-500">
+                    <option value="auto" selected>🎙️ Auto Voice (Matches Script)</option>
+                    <option value="hi-IN-MadhurNeural-Male">🎙️ Madhur (Hindi Male - Deep, Viral)</option>
+                    <option value="hi-IN-SwaraNeural-Female">🎙️ Swara (Hindi Female - Clear, Energetic)</option>
+                    <option value="en-US-ChristopherNeural-Male">🎙️ Christopher (English US Male - Narrative)</option>
+                    <option value="en-US-JennyNeural-Female">🎙️ Jenny (English US Female - Engaging)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 1. Exact Spoken Narration Script Area -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between">
+                  <label class="text-[11px] font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-violet-400"></i>
+                    <span>1. Narration Script (Manual Custom Script)</span>
+                  </label>
+                  <span id="script-lang-indicator" class="text-[10px] text-gray-400 font-mono">✍️ Manual Input Ready</span>
+                </div>
+                <textarea id="studio-script-input" rows="7" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-sm text-gray-100 font-hindi focus:outline-none focus:border-violet-500 leading-relaxed" placeholder="Type or paste your exact narration script here in Hindi, English, or Hinglish. Your exact words will be spoken by AI voiceover with zero forced alterations..."></textarea>
+              </div>
+
+              <!-- 2. Video Editing Style & Animation Directives Area -->
+              <div class="space-y-1.5 p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/30">
+                <div class="flex items-center justify-between">
+                  <label class="text-[11px] font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>2. Video Editing Style & Animation Prompt</span>
+                  </label>
+                  <span class="text-[10px] text-cyan-400 font-mono">Visual Effects & Timing</span>
+                </div>
+                <p class="text-[10px] text-gray-400">
+                  Write your video editing style prompt below (pacing, cuts, Ken Burns zoom, subtitle animation, sound design):
+                </p>
+                <textarea id="studio-editing-style-prompt" rows="2" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-xs text-cyan-100 placeholder-gray-500 focus:outline-none focus:border-cyan-500 leading-relaxed font-mono" placeholder="Write video editing style prompt here (e.g. 'Fast-paced documentary, rapid 3s scene cuts with dynamic Ken Burns zoom, bold gold bouncing subtitles, dark contrast color grading, suspenseful ambient music')..."></textarea>
+
+                <!-- Quick Preset Style Pills -->
+                <div class="flex items-center gap-1.5 pt-1 overflow-x-auto scrollbar-none" id="editing-style-presets">
+                  <button type="button" class="btn-style-preset px-2 py-0.5 rounded-md text-[10px] bg-gray-900 border border-gray-800 text-gray-300 hover:border-cyan-500 hover:text-cyan-200 transition" data-style="Fast-paced documentary style, rapid 3s scene cuts with dynamic Ken Burns zoom, bold gold animated subtitles with dark background ducking">
+                    ⚡ Fast Viral Pace (3s cuts)
+                  </button>
+                  <button type="button" class="btn-style-preset px-2 py-0.5 rounded-md text-[10px] bg-gray-900 border border-gray-800 text-gray-300 hover:border-cyan-500 hover:text-cyan-200 transition" data-style="Dark cinematic mystery style, slow atmospheric camera pan, deep contrast grading, cyan pop-spring subtitles, suspenseful ambient sound">
+                    🎬 Dark Cinematic Mystery
+                  </button>
+                  <button type="button" class="btn-style-preset px-2 py-0.5 rounded-md text-[10px] bg-gray-900 border border-gray-800 text-gray-300 hover:border-cyan-500 hover:text-cyan-200 transition" data-style="High-energy educational style, energetic zoom-ins on key facts, vibrant yellow highlighted subtitles, upbeat background leveling">
+                    💥 High-Energy Neon
+                  </button>
+                </div>
               </div>
 
               <!-- Visual Keyword Tags -->
@@ -845,7 +936,7 @@
             <input type="text" id="categories-search" placeholder="Search categories..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500">
           </div>
           <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 text-xs" id="cat-filter-container">
-            <button class="cat-filter-btn px-3 py-1.5 rounded-lg border border-violet-500/40 bg-violet-500/10 text-white font-medium active" data-lang="all">All Niches</button>
+            <button class="cat-filter-btn cat-filter-active px-3 py-1.5 rounded-lg border border-violet-500/40 bg-violet-500/10 text-white font-medium active" data-lang="all">All Niches</button>
             <button class="cat-filter-btn px-3 py-1.5 rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white" data-lang="hindi">Hindi (Devanagari)</button>
             <button class="cat-filter-btn px-3 py-1.5 rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white" data-lang="hinglish">Hinglish (Roman)</button>
             <button class="cat-filter-btn px-3 py-1.5 rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white" data-lang="english">English</button>

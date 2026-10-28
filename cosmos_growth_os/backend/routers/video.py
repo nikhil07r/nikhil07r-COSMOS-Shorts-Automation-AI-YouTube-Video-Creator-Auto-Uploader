@@ -26,10 +26,12 @@ class StartVideoRequest(BaseModel):
     category: Optional[str] = "Space & Universe"
     category_id: Optional[str] = None
     hindi_script: Optional[str] = ""
+    editing_style: Optional[str] = ""
     keywords: Optional[list] = []
     mode: Optional[str] = "story"
     theme_color: Optional[str] = None
-    language: Optional[str] = "hindi"
+    language: Optional[str] = "auto"
+    voice_name: Optional[str] = None
     subtitle_position_y: Optional[float] = 76.0
     preferred_model: Optional[str] = "qwen2.5:7b"
 
@@ -99,12 +101,14 @@ def start_video_generation(req: StartVideoRequest, background_tasks: BackgroundT
 
     topic_data = {
         "id": req.draft_id or f"t_{uuid.uuid4().hex[:6]}",
-        "mode": req.mode,
+        "mode": "script" if req.hindi_script else req.mode,
         "title": req.title,
         "category": req.category,
         "script": req.hindi_script,
+        "editing_style": req.editing_style or "",
         "keywords": req.keywords,
-        "language": req.language or "hindi",
+        "language": req.language or "auto",
+        "voice_name": req.voice_name,
         "topic": req.title
     }
 

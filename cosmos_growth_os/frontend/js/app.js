@@ -35,25 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Navigation Setup
   setupNavigation();
 
-  // Load Initial Data
-  fetchHealth();
-  fetchYouTubeData();
-  fetchCuratedTopics();
-  fetchCategories();
-  fetchPromptTemplates();
-  fetchJobs();
-  fetchMonetization();
-  fetchBestPostingTimes();
-  fetchCalendarEvents();
-  fetchGrowthDiagnostics();
-  fetchMilestoneRoadmap();
-  initPipelineTracker();
-
-  // Setup Event Listeners
-  setupEventListeners();
-  setupGrowthEventListeners();
-  setupWinningTopicListeners();
-  setupTabVisibilityAnimation();
+  // Note: Initial data loading and event listener setup are deferred to the bottom
+  // of DOMContentLoaded so all variables, functions, and elements are fully initialized.
 
   // ----------------------------------------------------
   // NAVIGATION & VIEWS
@@ -440,6 +423,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/studio/curated_topics");
       const data = await res.json();
       state.curatedTopics = data;
+      if (typeof renderFormulaTopics === "function") {
+        renderFormulaTopics(activeFormulaCat);
+      }
 
       const catSelect = document.getElementById("studio-curated-category");
       if (!catSelect) return;
@@ -477,8 +463,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return `<option value="${idx}">${val}</option>`;
     }).join("");
 
-    // Auto load first topic on category change
-    if (topics.length > 0) {
+    // Auto load first topic only if actively in Curated mode
+    if (topics.length > 0 && activeStudioMode === "curated") {
       loadCuratedTopicIntoEditor(topics[0]);
     }
   }
@@ -568,51 +554,191 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ----------------------------------------------------
-  // 2.6K FORMULA WINNING TOPICS CONTROLLER
+  // MULTI-NICHE FORMULA & WINNING TOPICS CONTROLLER
   // ----------------------------------------------------
+  let activeFormulaCat = "WWII & Warfare Extreme Inventions (2.6K Formula)";
+
+  const formulaMeta = {
+    "WWII & Warfare Extreme Inventions (2.6K Formula)": {
+      title: "2.6K Formula: WWII & Warfare Extreme Hacks",
+      icon: "🎖️",
+      badge: "#1 WINNER STYLE",
+      shortLabel: "WWII & Warfare",
+      desc: "Modeled on your highest-performing Short (2,648 views). Switch niches or click any topic to immediately load the script:"
+    },
+    "Space & Universe": {
+      title: "Viral Formula: Space & Cosmic Mysteries",
+      icon: "🚀",
+      badge: "HIGH RETENTION",
+      shortLabel: "Space & Universe",
+      desc: "Awe-inspiring cosmic phenomena, black holes, and deep universe secrets with high viral CTR:"
+    },
+    "Earth Mysteries": {
+      title: "Viral Formula: Earth & Bizarre Phenomena",
+      icon: "🗺️",
+      badge: "VIRAL ENGAGEMENT",
+      shortLabel: "Earth Mysteries",
+      desc: "Unsolved natural anomalies and strange earthly locations that provoke comments and shares:"
+    },
+    "Dangerous Places": {
+      title: "Viral Formula: World's Deadliest Locations",
+      icon: "⚠️",
+      badge: "HIGH CTR",
+      shortLabel: "Dangerous Places",
+      desc: "Extreme forbidden islands, lethal radiation zones, and isolated tribal territories:"
+    },
+    "Human History": {
+      title: "Viral Formula: Lost Ancient Engineering",
+      icon: "🏛️",
+      badge: "TIMELESS REACH",
+      shortLabel: "Human History",
+      desc: "Ancient technological marvels, self-healing architectures, and prehistoric machines:"
+    },
+    "Science Anomalies": {
+      title: "Viral Formula: Science & Nature Mind-Blowers",
+      icon: "🧬",
+      badge: "DEEP CURIOSITY",
+      shortLabel: "Science Anomalies",
+      desc: "Deep ocean aliens, quantum paradoxes, and shocking weather anomalies:"
+    },
+    "Technology & AI": {
+      title: "Viral Formula: Cutting-Edge Tech & AI Hacks",
+      icon: "🤖",
+      badge: "FUTURE TECH",
+      shortLabel: "Tech & AI",
+      desc: "Quantum computing, interstellar probes, and revolutionary future breakthroughs:"
+    }
+  };
+
   function setupWinningTopicListeners() {
-    // 2.6K Formula Topic Pills
-    document.querySelectorAll(".btn-topic-pill").forEach(pill => {
-      pill.addEventListener("click", () => {
-        const topic = pill.getAttribute("data-topic");
-        const promptInput = document.getElementById("studio-story-prompt");
-        if (promptInput) promptInput.value = topic;
-
-        // Select WWII category
-        const catSelect = document.getElementById("studio-story-category");
-        if (catSelect) {
-          for (let i = 0; i < catSelect.options.length; i++) {
-            if (catSelect.options[i].value.includes("WWII") || catSelect.options[i].value.includes("Warfare")) {
-              catSelect.selectedIndex = i;
-              break;
-            }
-          }
+    // 1. Setup Category Switcher Tabs (Clicking any tab switches the niche and topic pills)
+    const tabButtons = document.querySelectorAll(".btn-formula-tab");
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cat = btn.getAttribute("data-cat");
+        if (cat) {
+          switchFormulaCategory(cat, true);
         }
-
-        // Select WWII template
-        const tplSelect = document.getElementById("studio-prompt-template");
-        if (tplSelect) {
-          for (let i = 0; i < tplSelect.options.length; i++) {
-            if (tplSelect.options[i].value === "tpl_wwii_extreme_inventions" || tplSelect.options[i].text.includes("WWII")) {
-              tplSelect.selectedIndex = i;
-              break;
-            }
-          }
-        }
-
-        // Highlight active pill
-        document.querySelectorAll(".btn-topic-pill").forEach(p => {
-          p.classList.remove("border-amber-500", "bg-amber-500/20", "text-amber-200");
-          p.classList.add("border-gray-800", "text-gray-300");
-        });
-        pill.classList.remove("border-gray-800", "text-gray-300");
-        pill.classList.add("border-amber-500", "bg-amber-500/20", "text-amber-200");
-
-        showToast(`Loaded topic: "${topic.slice(0, 32)}..."`, "info");
       });
     });
 
-    // Suggest Fresh WWII Hack Topic
+    // 2. Synchronize when studio-story-category dropdown changes
+    const catSelect = document.getElementById("studio-story-category");
+    if (catSelect) {
+      catSelect.addEventListener("change", (e) => {
+        const val = e.target.value;
+        if (val) {
+          const matched = Object.keys(formulaMeta).find(k => k === val || val.includes(k) || k.includes(val));
+          if (matched && matched !== activeFormulaCat) {
+            switchFormulaCategory(matched, false);
+          }
+        }
+      });
+    }
+
+    // Initial render
+    switchFormulaCategory(activeFormulaCat, false);
+  }
+
+  function switchFormulaCategory(catName, syncDropdown = true) {
+    activeFormulaCat = catName;
+    const meta = formulaMeta[catName] || {
+      title: `Viral Formula: ${catName}`,
+      icon: "✨",
+      badge: "VIRAL FORMULA",
+      shortLabel: catName,
+      desc: "Click any viral topic below or generate fresh ideas:"
+    };
+
+    // Update Banner Header & Labels
+    const iconEl = document.getElementById("formula-banner-icon");
+    const titleEl = document.getElementById("formula-banner-title");
+    const badgeEl = document.getElementById("formula-banner-badge");
+    const descEl = document.getElementById("formula-banner-desc");
+    const activeLabelEl = document.getElementById("formula-active-cat-label");
+
+    if (iconEl) iconEl.textContent = meta.icon;
+    if (titleEl) titleEl.textContent = meta.title;
+    if (badgeEl) badgeEl.textContent = meta.badge;
+    if (descEl) descEl.textContent = meta.desc;
+    if (activeLabelEl) activeLabelEl.textContent = meta.shortLabel;
+
+    // Update Category Tab Active styling
+    document.querySelectorAll(".btn-formula-tab").forEach(tab => {
+      const tCat = tab.getAttribute("data-cat");
+      if (tCat === catName) {
+        tab.className = "btn-formula-tab formula-tab-active px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap";
+      } else {
+        tab.className = "btn-formula-tab px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap bg-gray-900 text-gray-400 border border-gray-800 hover:text-white";
+      }
+    });
+
+    // Sync studio-story-category select if requested
+    if (syncDropdown) {
+      const catSelect = document.getElementById("studio-story-category");
+      if (catSelect) {
+        for (let i = 0; i < catSelect.options.length; i++) {
+          const optVal = catSelect.options[i].value;
+          if (optVal === catName || catName.includes(optVal) || optVal.includes(catName.split(" ")[0])) {
+            catSelect.selectedIndex = i;
+            break;
+          }
+        }
+      }
+    }
+
+    // Render topics for this category
+    renderFormulaTopics(catName);
+  }
+
+  function renderFormulaTopics(catName) {
+    const container = document.getElementById("winning-topic-pills");
+    const countEl = document.getElementById("formula-topics-count");
+    if (!container) return;
+
+    // Look up topics from state.curatedTopics
+    let topics = [];
+    if (state.curatedTopics) {
+      const key = Object.keys(state.curatedTopics).find(k => k === catName || catName.includes(k) || k.includes(catName));
+      if (key && state.curatedTopics[key]) {
+        topics = state.curatedTopics[key];
+      }
+    }
+
+    if (countEl) countEl.textContent = `${topics.length} Curated Topics`;
+
+    // Map each topic to a pill
+    const pillsHtml = topics.map((t, idx) => {
+      const displayTitle = t.title || t.topic_en || t.topic_hi || "Viral Topic";
+      const shortDisplay = displayTitle.length > 36 ? displayTitle.substring(0, 34) + "..." : displayTitle;
+      const emoji = t.icon || getTopicEmoji(displayTitle);
+      return `
+        <button type="button" class="btn-topic-pill ${idx === 0 ? 'topic-pill-active' : ''} px-2.5 py-1 rounded-lg text-[11px] transition font-medium flex items-center gap-1.5" data-idx="${idx}" data-topic="${displayTitle}">
+          <span>${emoji}</span>
+          <span>${shortDisplay}</span>
+        </button>
+      `;
+    }).join("");
+
+    const suggestBtnHtml = `
+      <button type="button" id="btn-surprise-wwii-topic" class="px-2.5 py-1 rounded-lg bg-amber-600/30 border border-amber-500/50 text-[11px] text-amber-300 hover:bg-amber-600 hover:text-white transition flex items-center gap-1 font-semibold">
+        <i data-lucide="sparkles" class="w-3 h-3"></i>
+        <span>🎲 Suggest Fresh Topic</span>
+      </button>
+    `;
+
+    container.innerHTML = pillsHtml + suggestBtnHtml;
+    if (window.lucide) lucide.createIcons();
+
+    // Attach click listener to each topic pill
+    container.querySelectorAll(".btn-topic-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        const idx = parseInt(pill.getAttribute("data-idx"), 10);
+        selectFormulaTopic(pill, topics[idx]);
+      });
+    });
+
+    // Attach click listener to Suggest Fresh Topic button
     const btnSurprise = document.getElementById("btn-surprise-wwii-topic");
     if (btnSurprise) {
       btnSurprise.addEventListener("click", async () => {
@@ -623,37 +749,22 @@ document.addEventListener("DOMContentLoaded", () => {
           const res = await fetch("/api/studio/suggest_topic", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ category: "WWII & Warfare Extreme Inventions (2.6K Formula)" })
+            body: JSON.stringify({ category: catName })
           });
           const data = await res.json();
           if (data && data.topic) {
             const promptInput = document.getElementById("studio-story-prompt");
             if (promptInput) promptInput.value = data.topic;
 
-            const catSelect = document.getElementById("studio-story-category");
-            if (catSelect) {
-              for (let i = 0; i < catSelect.options.length; i++) {
-                if (catSelect.options[i].value.includes("WWII") || catSelect.options[i].value.includes("Warfare")) {
-                  catSelect.selectedIndex = i;
-                  break;
-                }
-              }
-            }
+            const titleInput = document.getElementById("studio-title-input");
+            if (titleInput) titleInput.value = data.topic;
 
-            const tplSelect = document.getElementById("studio-prompt-template");
-            if (tplSelect) {
-              for (let i = 0; i < tplSelect.options.length; i++) {
-                if (tplSelect.options[i].value === "tpl_wwii_extreme_inventions" || tplSelect.options[i].text.includes("WWII")) {
-                  tplSelect.selectedIndex = i;
-                  break;
-                }
-              }
-            }
+            container.querySelectorAll(".btn-topic-pill").forEach(p => p.classList.remove("topic-pill-active"));
 
-            showToast(`Generated: "${data.topic.slice(0, 35)}..."`, "success");
+            showToast(`Brainstormed: "${data.topic.slice(0, 35)}..." Click 'Generate Script with Qwen' to draft!`, "success");
           }
         } catch (e) {
-          showToast("Topic suggestion failed: " + e.message, "danger");
+          showToast("Topic suggestion error: " + e.message, "danger");
         } finally {
           btnSurprise.disabled = false;
           btnSurprise.innerHTML = `<i data-lucide="sparkles" class="w-3 h-3"></i><span>🎲 Suggest Fresh Topic</span>`;
@@ -661,6 +772,70 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // Do NOT auto-populate the editor automatically - user writes manually!
+    // Pills are ready for optional inspiration, but never force-overwrite the editor.
+  }
+
+  function selectFormulaTopic(pillElement, topicData) {
+    if (!topicData) return;
+
+    // Toggle active pill classes
+    const container = document.getElementById("winning-topic-pills");
+    if (container) {
+      container.querySelectorAll(".btn-topic-pill").forEach(p => {
+        p.classList.remove("topic-pill-active");
+      });
+    }
+    if (pillElement) {
+      pillElement.classList.add("topic-pill-active");
+    }
+
+    const topicTitle = topicData.title || topicData.topic_en || topicData.topic_hi || "";
+    const promptInput = document.getElementById("studio-story-prompt");
+    if (promptInput) promptInput.value = topicTitle;
+
+    const scriptInput = document.getElementById("studio-script-input");
+    const titleInput = document.getElementById("studio-title-input");
+
+    // If script is currently empty, load the example topic directly; if user already typed, ask or load
+    const currentScript = scriptInput ? scriptInput.value.trim() : "";
+    if (!currentScript || confirm(`Load example script for "${topicTitle.slice(0, 30)}..."? Your current draft will be replaced.`)) {
+      if (topicData.script && scriptInput) {
+        scriptInput.value = topicData.script;
+      }
+      if (titleInput) {
+        titleInput.value = topicData.topic_hi || topicData.title || topicTitle;
+      }
+      if (topicData.keywords && Array.isArray(topicData.keywords)) {
+        renderKeywordTags(topicData.keywords);
+      }
+      if (topicData.script) {
+        updateScriptWordCountAndLanguage(topicData.script);
+        runPolicyCheck(topicData.script, topicData.topic_hi || topicTitle);
+      }
+      showToast(`✓ Loaded: "${topicTitle.slice(0, 32)}..." (Edit freely!)`, "info");
+    }
+  }
+
+  function getTopicEmoji(title) {
+    const lower = (title || "").toLowerCase();
+    if (lower.includes("grenade") || lower.includes("bomb") || lower.includes("hook")) return "💣";
+    if (lower.includes("night witch") || lower.includes("plane") || lower.includes("pilot")) return "✈️";
+    if (lower.includes("ghost army") || lower.includes("rubber") || lower.includes("tank")) return "🎈";
+    if (lower.includes("habakkuk") || lower.includes("ice") || lower.includes("carrier")) return "🧊";
+    if (lower.includes("coffee") || lower.includes("submarine")) return "☕";
+    if (lower.includes("black hole") || lower.includes("supermassive")) return "🌌";
+    if (lower.includes("sun") || lower.includes("screaming") || lower.includes("solar")) return "☀️";
+    if (lower.includes("stone") || lower.includes("sailing") || lower.includes("death valley")) return "🪨";
+    if (lower.includes("lake") || lower.includes("natron") || lower.includes("animal")) return "🩸";
+    if (lower.includes("snake") || lower.includes("ilha")) return "🐍";
+    if (lower.includes("sentinel") || lower.includes("tribe") || lower.includes("island")) return "🏝️";
+    if (lower.includes("antikythera") || lower.includes("computer") || lower.includes("greek")) return "⚙️";
+    if (lower.includes("roman") || lower.includes("concrete") || lower.includes("pantheon")) return "🏛️";
+    if (lower.includes("quantum") || lower.includes("password") || lower.includes("encryption")) return "🔐";
+    if (lower.includes("voyager") || lower.includes("probe") || lower.includes("signal")) return "🛰️";
+    return "⚡";
   }
 
   // Preview Prompt Button Handler
@@ -807,12 +982,62 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Save Custom Draft
+  const btnSaveDraft = document.getElementById("btn-save-draft");
+  if (btnSaveDraft) {
+    btnSaveDraft.addEventListener("click", async () => {
+      const titleInput = document.getElementById("studio-title-input");
+      const promptInput = document.getElementById("studio-story-prompt");
+      const title = (titleInput?.value || promptInput?.value || "").trim() || "Untitled Draft";
+
+      const scriptInput = document.getElementById("studio-script-input");
+      const exactScriptInput = document.getElementById("studio-exact-script");
+      const script = (scriptInput?.value || exactScriptInput?.value || "").trim();
+
+      const catSelect = document.getElementById("studio-story-category");
+      const categoryName = catSelect?.value || "Space & Universe";
+      const editingStyle = document.getElementById("studio-editing-style-prompt")?.value || "";
+
+      if (!script && !title) {
+        showToast("Please enter a title or script to save as draft.", "warning");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/studio/drafts/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: title,
+            hindi_script: script,
+            category: categoryName,
+            editing_style: editingStyle,
+            status: "draft"
+          })
+        });
+        if (res.ok) {
+          showToast("Draft saved successfully!", "success");
+        } else {
+          showToast("Failed to save draft.", "danger");
+        }
+      } catch (e) {
+        showToast("Draft save error: " + e.message, "danger");
+      }
+    });
+  }
+
   // Send to Video Pipeline
   const btnSendPipeline = document.getElementById("btn-send-to-pipeline");
   if (btnSendPipeline) {
     btnSendPipeline.addEventListener("click", async () => {
-      const title = document.getElementById("studio-title-input")?.value;
-      const script = document.getElementById("studio-script-input")?.value;
+      const titleInput = document.getElementById("studio-title-input");
+      const promptInput = document.getElementById("studio-story-prompt");
+      const title = (titleInput?.value || promptInput?.value || "").trim() || "COSMOS Short";
+
+      const scriptInput = document.getElementById("studio-script-input");
+      const exactScriptInput = document.getElementById("studio-exact-script");
+      const script = (scriptInput?.value || exactScriptInput?.value || "").trim();
+
       const catSelect = document.getElementById("studio-story-category");
       const categoryName = catSelect?.value || "Space & Universe";
       const selectedCatOption = catSelect?.options[catSelect.selectedIndex];
@@ -821,32 +1046,55 @@ document.addEventListener("DOMContentLoaded", () => {
       const themeColor = selectedCatOption?.getAttribute("data-color");
       
       if (!script) {
-        showToast("Please generate or enter a script first.", "warning");
+        showToast("Please enter your narration script first in the Narration Script box.", "warning");
+        if (scriptInput) scriptInput.focus();
         return;
       }
 
-      showToast(`Launching video pipeline with ${categoryName} theme...`, "info");
+      const editingStyle = document.getElementById("studio-editing-style-prompt")?.value || "";
+      const scriptLang = document.getElementById("studio-script-lang")?.value || "auto";
+      const voiceName = document.getElementById("studio-script-voice")?.value || "auto";
+
+      const origHtml = btnSendPipeline.innerHTML;
+      btnSendPipeline.innerHTML = `<span class="inline-block animate-spin mr-1.5">&#9203;</span><span>Sending to Pipeline...</span>`;
+      btnSendPipeline.disabled = true;
+
+      showToast(`Launching video pipeline with full animations & voiceover in ${scriptLang}...`, "info");
       
       try {
         const res = await fetch("/api/video/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            title: title || "COSMOS Short",
+            title: title,
             category: categoryName,
-            language: lang,
+            language: scriptLang,
+            voice_name: voiceName,
             theme_color: themeColor || null,
             hindi_script: script,
-            mode: activeStudioMode
+            editing_style: editingStyle,
+            mode: "script"
           })
         });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || "Server error: " + res.status);
+        }
+
         const data = await res.json();
         
         state.activeJobId = data.job_id;
+        showToast("Video render job launched! Switching to Pipeline view...", "success");
         switchView("video");
         startJobPolling(data.job_id, title);
+        fetchActivePipeline();
       } catch (e) {
         showToast("Pipeline launch failed: " + e.message, "danger");
+      } finally {
+        btnSendPipeline.innerHTML = origHtml;
+        btnSendPipeline.disabled = false;
+        if (window.lucide) lucide.createIcons();
       }
     });
   }
@@ -1364,19 +1612,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  document.querySelectorAll("#cat-filter-container .cat-filter-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#cat-filter-container .cat-filter-btn").forEach(b => {
-        b.classList.remove("border-violet-500/40", "bg-violet-500/10", "text-white");
+  const catFilterContainer = document.getElementById("cat-filter-container");
+  if (catFilterContainer) {
+    catFilterContainer.addEventListener("click", (e) => {
+      const btn = e.target.closest(".cat-filter-btn");
+      if (!btn) return;
+      catFilterContainer.querySelectorAll(".cat-filter-btn").forEach(b => {
+        b.classList.remove("cat-filter-active", "active", "border-violet-500/40", "bg-violet-500/10", "text-white");
         b.classList.add("border-gray-800", "bg-gray-900", "text-gray-400");
       });
-      btn.classList.add("border-violet-500/40", "bg-violet-500/10", "text-white");
+      btn.classList.add("cat-filter-active", "border-violet-500/40", "bg-violet-500/10", "text-white");
       btn.classList.remove("border-gray-800", "bg-gray-900", "text-gray-400");
 
-      state.activeCategoryFilter = btn.getAttribute("data-lang");
+      state.activeCategoryFilter = btn.getAttribute("data-lang") || "all";
       renderCategoriesGrid();
     });
-  });
+  }
 
   // Export & Import Handlers
   const btnExport = document.getElementById("btn-export-categories");
@@ -1971,15 +2222,26 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/analytics/monetization");
       const data = await res.json();
 
-      document.getElementById("ypp-shorts-views").textContent = (data.shorts_views.current || 0).toLocaleString();
-      document.getElementById("ypp-shorts-pct").textContent = `${data.shorts_views.progress_pct}% Reached`;
-      document.getElementById("ypp-shorts-remain").textContent = `${(data.shorts_views.remaining || 0).toLocaleString()} views needed`;
-      document.getElementById("ypp-shorts-bar").style.width = `${Math.max(0.5, data.shorts_views.progress_pct)}%`;
+      const shorts = data.shorts_views || {};
+      const subs = data.subscribers || {};
 
-      document.getElementById("ypp-subs-count").textContent = (data.subscribers.current || 0).toLocaleString();
-      document.getElementById("ypp-subs-pct").textContent = `${data.subscribers.progress_pct}% Reached`;
-      document.getElementById("ypp-subs-remain").textContent = `${data.subscribers.remaining} subscribers needed`;
-      document.getElementById("ypp-subs-bar").style.width = `${Math.max(1, data.subscribers.progress_pct)}%`;
+      const shortsViewsEl = document.getElementById("ypp-shorts-views");
+      if (shortsViewsEl) shortsViewsEl.textContent = (shorts.current || 0).toLocaleString();
+      const shortsPctEl = document.getElementById("ypp-shorts-pct");
+      if (shortsPctEl) shortsPctEl.textContent = `${shorts.progress_pct || 0}% Reached`;
+      const shortsRemEl = document.getElementById("ypp-shorts-remain");
+      if (shortsRemEl) shortsRemEl.textContent = `${(shorts.remaining || 0).toLocaleString()} views needed`;
+      const shortsBarEl = document.getElementById("ypp-shorts-bar");
+      if (shortsBarEl) shortsBarEl.style.width = `${Math.max(0.5, shorts.progress_pct || 0)}%`;
+
+      const subsCountEl = document.getElementById("ypp-subs-count");
+      if (subsCountEl) subsCountEl.textContent = (subs.current || 0).toLocaleString();
+      const subsPctEl = document.getElementById("ypp-subs-pct");
+      if (subsPctEl) subsPctEl.textContent = `${subs.progress_pct || 0}% Reached`;
+      const subsRemEl = document.getElementById("ypp-subs-remain");
+      if (subsRemEl) subsRemEl.textContent = `${subs.remaining || 0} subscribers needed`;
+      const subsBarEl = document.getElementById("ypp-subs-bar");
+      if (subsBarEl) subsBarEl.style.width = `${Math.max(1, subs.progress_pct || 0)}%`;
     } catch (e) {
       console.warn("Monetization load error:", e);
     }
@@ -2056,7 +2318,89 @@ document.addEventListener("DOMContentLoaded", () => {
   // ----------------------------------------------------
   // EVENT LISTENERS & MODALS
   // ----------------------------------------------------
-  function setupEventListeners() {
+    // ----------------------------------------------------
+  // MANUAL SCRIPT WRITING & VIDEO EDITING STYLE CONTROLLER
+  // ----------------------------------------------------
+  function setupManualScriptController() {
+    const scriptInput = document.getElementById("studio-script-input");
+    const titleInput = document.getElementById("studio-title-input");
+    const styleInput = document.getElementById("studio-editing-style-prompt");
+    const btnClearManual = document.getElementById("btn-clear-manual-script");
+
+    // Clear to Write Manually Button
+    if (btnClearManual) {
+      btnClearManual.addEventListener("click", () => {
+        if (scriptInput) scriptInput.value = "";
+        if (titleInput) titleInput.value = "";
+        if (styleInput) styleInput.value = "";
+        
+        const badge = document.getElementById("studio-duration-badge");
+        if (badge) badge.textContent = "0 words (~0s)";
+
+        const langIndicator = document.getElementById("script-lang-indicator");
+        if (langIndicator) langIndicator.textContent = "✍️ Clean Slate (Write Your Manual Script)";
+
+        const keywordsContainer = document.getElementById("studio-keywords-container");
+        if (keywordsContainer) {
+          keywordsContainer.innerHTML = `<span class="text-xs text-gray-500 italic">Sequential stock keywords will be generated from your script & editing style...</span>`;
+        }
+
+        // Clear active pill highlight
+        document.querySelectorAll(".btn-topic-pill").forEach(p => p.classList.remove("topic-pill-active"));
+        showToast("Editor cleared! Type your custom script & editing style prompt.", "info");
+        if (scriptInput) scriptInput.focus();
+      });
+    }
+
+    // Real-time typing listener: detects words, duration, and language
+    if (scriptInput) {
+      scriptInput.addEventListener("input", () => {
+        updateScriptWordCountAndLanguage(scriptInput.value);
+      });
+    }
+
+    // Style preset pills
+    document.querySelectorAll(".btn-style-preset").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const style = btn.getAttribute("data-style");
+        if (styleInput && style) {
+          styleInput.value = style;
+          showToast("Applied editing style preset!", "info");
+        }
+      });
+    });
+  }
+
+  function updateScriptWordCountAndLanguage(text) {
+    const clean = (text || "").trim();
+    const words = clean ? clean.split(/\s+/).filter(Boolean).length : 0;
+    const durationSec = Math.max(0, Math.round(words / 2.5));
+    const badge = document.getElementById("studio-duration-badge");
+    if (badge) badge.textContent = `${words} words (~${durationSec}s)`;
+
+    const langIndicator = document.getElementById("script-lang-indicator");
+    const langSelect = document.getElementById("studio-script-lang");
+    const voiceSelect = document.getElementById("studio-script-voice");
+
+    if (words > 0) {
+      const hasDevanagari = /[\u0900-\u097F]/.test(clean);
+      if (hasDevanagari) {
+        if (langIndicator) langIndicator.textContent = "🇮🇳 Hindi Script Detected (Madhur / Swara Voice)";
+        if (langSelect && langSelect.value === "auto" && voiceSelect && voiceSelect.value === "auto") {
+          voiceSelect.value = "hi-IN-MadhurNeural-Male";
+        }
+      } else {
+        if (langIndicator) langIndicator.textContent = "🌐 English / Roman Script Detected (Christopher / Jenny Voice)";
+        if (langSelect && langSelect.value === "auto" && voiceSelect && voiceSelect.value === "auto") {
+          voiceSelect.value = "en-US-ChristopherNeural-Male";
+        }
+      }
+    } else {
+      if (langIndicator) langIndicator.textContent = "✍️ Manual Input Ready";
+    }
+  }
+
+function setupEventListeners() {
     const syncBtn = document.getElementById("btn-sync-yt");
     if (syncBtn) {
       syncBtn.addEventListener("click", async () => {
@@ -2593,6 +2937,28 @@ document.addEventListener("DOMContentLoaded", () => {
       stopInactiveAnimation();
     });
   }
+
+  // ----------------------------------------------------
+  // INITIAL APP BOOTSTRAP (Runs after all handlers and variables are fully initialized)
+  // ----------------------------------------------------
+  fetchHealth();
+  fetchYouTubeData();
+  fetchCuratedTopics();
+  fetchCategories();
+  fetchPromptTemplates();
+  fetchJobs();
+  fetchMonetization();
+  fetchBestPostingTimes();
+  fetchCalendarEvents();
+  fetchGrowthDiagnostics();
+  fetchMilestoneRoadmap();
+  initPipelineTracker();
+
+  setupEventListeners();
+  setupGrowthEventListeners();
+  setupWinningTopicListeners();
+  setupManualScriptController();
+  setupTabVisibilityAnimation();
 
   // Toast Notification System
   function showToast(message, type = "info") {

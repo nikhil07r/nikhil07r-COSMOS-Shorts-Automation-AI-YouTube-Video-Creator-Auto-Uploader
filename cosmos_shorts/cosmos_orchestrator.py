@@ -157,20 +157,42 @@ def run_cosmos_short_pipeline(
     print(f"  Title: {content.get('title')}")
     print(f"  Keywords: {content.get('keywords')}")
 
-    # Calculate optimal clip duration to guarantee exact 1-to-1 sync and avoid round-robin clip repetition
+    # Calculate optimal clip duration and dynamic pacing from editing style
     keywords = content.get("keywords", [])
     script_words = len(content.get("script", "").split())
     est_duration = max(35.0, script_words / 2.16)
+    
+    editing_style = (topic.get("editing_style") or "").lower()
     if keywords:
-        optimal_clip_duration = max(5, int(math.ceil(est_duration / len(keywords))))
+        optimal_clip_duration = max(3, int(math.ceil(est_duration / len(keywords))))
     else:
-        optimal_clip_duration = 6
-    print(f"  Pacing: Est Audio={est_duration:.1f}s | Keywords={len(keywords)} | Clip Duration={optimal_clip_duration}s")
+        optimal_clip_duration = 5
 
-    # 3. Create Video with MoneyPrinterTurbo
+    # Adapt pacing duration to user's editing style directives
+    if any(k in editing_style for k in ["fast", "rapid", "quick", "3s", "high-energy"]):
+        optimal_clip_duration = 3
+    elif any(k in editing_style for k in ["slow", "calm", "cinematic mystery", "atmospheric"]):
+        optimal_clip_duration = 6
+
+    # Dynamic Voice & Language Selection (Respects user's manual language & voice choice)
+    script_text = content.get("script", "")
+    chosen_voice = topic.get("voice_name")
+    if not chosen_voice or chosen_voice == "auto":
+        has_devanagari = bool(re.search(r'[ऀ-ॿ]', script_text))
+        lang = (topic.get("language") or "auto").lower()
+        if lang == "english" or (not has_devanagari and any(c.isalpha() for c in script_text)):
+            chosen_voice = "en-US-ChristopherNeural-Male"
+        elif lang == "hindi_female":
+            chosen_voice = "hi-IN-SwaraNeural-Female"
+        else:
+            chosen_voice = "hi-IN-MadhurNeural-Male"
+
+    print(f"  Pacing: Est Audio={est_duration:.1f}s | Keywords={len(keywords)} | Clip Duration={optimal_clip_duration}s | Voice={chosen_voice}")
+
+    # 3. Create Video with MoneyPrinterTurbo (Applies all effects, animations & dynamic subtitles)
     if progress_callback:
-        progress_callback(50, "Synthesizing voiceover & downloading HD video clips...")
-    print(f"[Step 3] Rendering Video via MoneyPrinterTurbo Pipeline...")
+        progress_callback(50, f"Synthesizing voiceover ({chosen_voice}) & sourcing HD video clips...")
+    print(f"[Step 3] Rendering Video via MoneyPrinterTurbo Pipeline with animations & visual zoom...")
     task_id = str(uuid.uuid4())
     params = VideoParams(
         video_subject=content.get("title", "COSMOS Short"),
@@ -178,7 +200,7 @@ def run_cosmos_short_pipeline(
         video_terms=",".join(keywords),
         video_aspect="9:16",
         video_source="pixabay",
-        voice_name="hi-IN-MadhurNeural-Male",
+        voice_name=chosen_voice,
         font_name="Nirmala.ttc",
         subtitle_enabled=True,
         subtitle_position=subtitle_position,

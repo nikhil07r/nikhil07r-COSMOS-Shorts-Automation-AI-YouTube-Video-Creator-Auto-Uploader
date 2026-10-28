@@ -167,46 +167,76 @@ Return ONLY valid JSON in this exact structure:
     data = call_ollama_json(prompt, preferred_model)
     return sanitize_content_dict(data, category)
 
-def generate_from_script(script_text: str, category: str = "General", preferred_model: Optional[str] = None) -> Dict[str, Any]:
+def extract_keywords_from_script(script_text: str, editing_style: str = "", category: str = "General", preferred_model: Optional[str] = None) -> List[str]:
+    """
+    Extracts sequential stock video search keywords matching the user's exact manual script
+    and their video editing style instructions (e.g. fast cuts, dark cinematic tone).
+    """
+    clean_script = script_text.strip()
+    prompt = f"""You are an expert visual director and editor for YouTube Shorts.
+The user provided their own exact narration script:
+"""{clean_script}"""
+
+Category: {category}
+Video Editing Style & Animation Directives: {editing_style or "High retention, dynamic visual pacing"}
+
+TASK:
+Break down the script chronologically into 5 to 7 sequential visual beats.
+For each beat, provide an exact English stock footage search term matching the narration and editing style.
+Make sure the terms reflect the requested editing style and aesthetic.
+
+Return ONLY valid JSON:
+{{
+  "keywords": ["scene1_visual_term", "scene2_visual_term", "scene3_visual_term", "scene4_visual_term", "scene5_visual_term"]
+}}"""
+    try:
+        res = call_ollama_json(prompt, preferred_model)
+        kws = res.get("keywords", [])
+        if isinstance(kws, list) and len(kws) >= 3:
+            return kws[:7]
+    except Exception as e:
+        print(f"[Keywords] Extraction fallback: {e}")
+
+    # Fallback to smart terms
+    return [f"{category} cinematic footage", "dramatic atmospheric landscape", "high resolution close up"]
+
+def generate_from_script(script_text: str, category: str = "General", editing_style: str = "", preferred_model: Optional[str] = None) -> Dict[str, Any]:
     """
     Mode: Direct Custom Script.
-    Takes the user's exact written narration script.
-    Analyzes the script chronologically to extract 5 to 7 sequential visual keywords matching each scene,
-    along with catchy title, thumbnail badge text, and metadata.
+    Preserves the user's exact manual narration script 100% verbatim in the given language.
+    Analyzes the script and editing style prompt to extract matching visual search keywords,
+    catchy title, and metadata.
     """
     clean_script = script_text.strip()
     prompt = f"""You are an expert visual director for the COSMOS YouTube Shorts channel.
 The user has provided their own exact narration script:
-\"\"\"{clean_script}\"\"\"
+"""{clean_script}"""
 
 Category: {category}
+Video Editing Style & Animation Directives: {editing_style or "Dynamic, high retention, cinematic"}
 
 TASK:
-1. SCRIPT VERIFICATION: If the script is in Hindi (Devanagari), keep it verbatim. If in English/Hinglish, translate it into natural, dramatic Hindi (Devanagari).
-2. SEQUENTIAL VISUAL KEYWORDS:
+1. SEQUENTIAL VISUAL KEYWORDS:
    - Break this narration down into 5 to 7 chronological visual beats.
-   - Provide EXACTLY 5 to 7 sequential, highly specific English stock video search queries matching what is being narrated in each beat from start to finish.
-   - Be specific and descriptive (e.g., "outer space earth sunrise", "ancient temple ruins aerial", "underwater glowing creature").
+   - Provide EXACTLY 5 to 7 sequential, highly specific English stock video search queries matching each beat.
+   - Incorporate the requested video editing style and visual tone.
+2. TITLE & METADATA:
+   - Catchy title matching the script with 1 emoji and #shorts.
 3. THUMBNAIL HOOK:
-   - Provide a dramatic 2 to 4 word Hindi phrase for the thumbnail badge.
-4. TITLE & METADATA:
-   - Catchy Hindi title with 1 emoji and #shorts.
+   - Punchy 2 to 4 word hook phrase.
 
 Return ONLY valid JSON:
 {{
-  "title": "Hindi Title with emoji #shorts",
-  "script": "The narration in Devanagari Hindi",
+  "title": "Short Title with emoji #shorts",
   "keywords": ["beat1_visual", "beat2_visual", "beat3_visual", "beat4_visual", "beat5_visual"],
-  "thumbnail_text": "2-4 words Hindi hook",
-  "description": "Short description #shorts #cosmos #facts #hindi",
-  "tags": ["COSMOS", "Shorts", "Hindi Facts", "{category}"]
+  "thumbnail_text": "2-4 words hook",
+  "description": "Engaging description #shorts #cosmos #viral",
+  "tags": ["COSMOS", "Shorts", "{category}"]
 }}"""
 
     data = call_ollama_json(prompt, preferred_model)
-    # Ensure user's script is preserved if it was already Devanagari Hindi
-    devanagari_count = len(re.findall(r'[\u0900-\u097F]', clean_script))
-    if devanagari_count > len(clean_script) * 0.3:
-        data["script"] = clean_script
+    # Strictly preserve the user's exact manual script in whatever language they provided
+    data["script"] = clean_script
 
     return sanitize_content_dict(data, category)
 
@@ -253,10 +283,11 @@ def generate_cosmos_content(topic_info: Dict[str, Any], preferred_model: Optiona
     mode = topic_info.get("mode")
     category = topic_info.get("category", "General")
 
-    # Mode 1: Exact Script
-    if mode == "script" or topic_info.get("custom_script"):
+    # Mode 1: Exact Manual Script (Highest priority - preserves user's exact script & editing style)
+    if mode == "script" or topic_info.get("custom_script") or topic_info.get("script"):
         script = topic_info.get("custom_script") or topic_info.get("script", "")
-        return generate_from_script(script, category=category, preferred_model=preferred_model)
+        editing_style = topic_info.get("editing_style") or topic_info.get("custom_instructions", "")
+        return generate_from_script(script, category=category, editing_style=editing_style, preferred_model=preferred_model)
 
     # Mode 2: Story Conception
     if mode == "story" or topic_info.get("custom_story"):

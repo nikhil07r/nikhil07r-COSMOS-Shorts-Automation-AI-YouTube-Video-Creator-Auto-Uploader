@@ -134,3 +134,45 @@ body {
   background-color: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(4px);
 }
+
+
+/* Formula Niche Tabs & Topic Pills */
+.btn-formula-tab {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-formula-tab.formula-tab-active {
+  background-color: rgba(245, 158, 11, 0.22) !important;
+  border-color: #f59e0b !important;
+  color: #fef3c7 !important;
+  font-weight: 700 !important;
+}
+
+.btn-topic-pill {
+  cursor: pointer;
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  color: #d1d5db;
+  transition: all 0.2s ease;
+}
+.btn-topic-pill:hover {
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  color: #fde68a !important;
+  background-color: rgba(245, 158, 11, 0.08) !important;
+}
+.btn-topic-pill.topic-pill-active {
+  background-color: rgba(245, 158, 11, 0.25) !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Categories Language Filter Active Styling */
+.cat-filter-btn.cat-filter-active {
+  background-color: rgba(139, 92, 246, 0.25) !important;
+  border-color: #8b5cf6 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.35) !important;
+}
